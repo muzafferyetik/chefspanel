@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ siparis['siparis_adi'] }} - Detay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark mb-4 shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('anasayfa') }}">
+            <i class="bi bi-shop me-1"></i> {{ session['isletme_adi'] if session.get('isletme_adi') else 'Yönetim Paneli' }}
+        </a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto align-items-center">
+                {% if session.get('rol') == 'admin' %}
+                    <li class="nav-item"><a class="nav-link text-warning fw-bold" href="{{ url_for('admin_panel') }}"><i class="bi bi-shield-lock-fill"></i> Admin Paneli</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('anasayfa') }}">Ana Sayfa</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('siparisler') }}">Siparişler</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('malzemeler') }}">Depo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('tarifler') }}">Tarifler</a></li>
+                {% endif %}
+                
+                <li class="nav-item ms-3 border-start ps-3">
+                    <a class="nav-link text-danger fw-bold" href="{{ url_for('logout') }}">
+                        <i class="bi bi-box-arrow-right"></i> Çıkış
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container pb-5">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
+        <div>
+            {% if siparis['durum'] == 'Hazırlanıyor' %}
+                <span class="badge bg-warning text-dark mb-2 px-3 py-1"><i class="bi bi-fire"></i> Mutfakta Hazırlanıyor</span>
+            {% elif siparis['durum'] == 'Teslim Edildi' %}
+                <span class="badge bg-info text-dark mb-2 px-3 py-1"><i class="bi bi-cup-hot-fill"></i> Masada Yeniyor</span>
+            {% else %}
+                <span class="badge bg-secondary mb-2 px-3 py-1"><i class="bi bi-archive"></i> Geçmiş Sipariş ({{ siparis['durum'] }})</span>
+            {% endif %}
+            <h2 class="m-0 fw-bold display-6">{{ siparis['siparis_adi'] }} Adisyonu</h2>
+        </div>
+        <a href="{{ url_for('siparisler') }}" class="btn btn-outline-dark rounded-pill px-4 py-2"><i class="bi bi-arrow-left me-2"></i> Siparişlere Dön</a>
+    </div>
+
+    <div class="row g-4 mt-2">
+        
+        {% if siparis['durum'] in ['Hazırlanıyor', 'Teslim Edildi'] %}
+        <div class="col-lg-4">
+            <div class="card p-2 shadow-sm border-0 border-top border-primary border-4">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-4"><i class="bi bi-plus-circle text-primary me-2"></i> Siparişe Yemek Ekle</h5>
+                    <form method="POST">
+                        <div class="mb-4">
+                            <label class="form-label text-muted small fw-bold">Menüden Seç</label>
+                            <select class="form-select py-2" name="tarif_id" required>
+                                <option value="">Yemek Seçin...</option>
+                                {% for tarif in tarifler %}
+                                    <option value="{{ tarif['id'] }}">{{ tarif['yemek_adi'] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label text-muted small fw-bold">Porsiyon / Adet</label>
+                            <input type="number" min="1" value="1" class="form-control py-2" name="adet" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold"><i class="bi bi-cart-plus me-2"></i> Adisyona Ekle</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="d-flex flex-column gap-2 mt-4">
+                {% if siparis['durum'] == 'Hazırlanıyor' %}
+                    <form action="/siparis_durum/{{ siparis['id'] }}/Teslim Edildi" method="POST">
+                        <button type="submit" class="btn btn-success w-100 py-3 fw-bold shadow-sm"><i class="bi bi-check2-all"></i> Siparişi Masaya Teslim Et</button>
+                    </form>
+                {% else %}
+                    <form action="/siparis_durum/{{ siparis['id'] }}/Tamamlandı" method="POST">
+                        <button type="submit" class="btn btn-info w-100 py-3 fw-bold shadow-sm"><i class="bi bi-stars"></i> Masayı Boşalt (Hesabı Kapat)</button>
+                    </form>
+                {% endif %}
+                
+                <form action="/siparis_durum/{{ siparis['id'] }}/İptal" method="POST">
+                    <button type="submit" class="btn btn-outline-danger w-100 py-2 shadow-sm" title="İptal Et"><i class="bi bi-x-circle"></i> Komple İptal Et (Stoka Geri Dön)</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="col-lg-{% if siparis['durum'] in ['Hazırlanıyor', 'Teslim Edildi'] %}8{% else %}12{% endif %}">
+            <div class="card mb-4 overflow-hidden shadow-sm border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle m-0">
+                            <thead class="table-light text-muted">
+                                <tr>
+                                    <th class="ps-4 py-3">Yemek Adı</th>
+                                    <th>Adet</th>
+                                    <th>1 Porsiyon Maliyeti</th>
+                                    <th>Toplam Maliyet</th>
+                                    {% if siparis['durum'] == 'Hazırlanıyor' %}<th class="text-end pe-4">Sil</th>{% endif %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for kalem in kalemler %}
+                                <tr>
+                                    <td class="ps-4 fw-bold text-dark fs-5">{{ kalem['yemek_adi'] }}</td>
+                                    <td><span class="badge bg-primary fs-6 px-3 py-2">{{ kalem['adet'] }}x</span></td>
+                                    <td class="text-muted">{{ "%.2f"|format(kalem['birim_maliyet']) }} ₺</td>
+                                    <td class="text-danger fw-bold fs-5">{{ "%.2f"|format(kalem['satir_maliyeti']) }} ₺</td>
+                                    
+                                    {% if siparis['durum'] == 'Hazırlanıyor' %}
+                                    <td class="text-end pe-4">
+                                        <form action="/siparis_kalem_sil/{{ siparis['id'] }}/{{ kalem['detay_id'] }}" method="POST" style="display:inline;">
+                                            <button type="submit" class="btn btn-sm btn-light border text-danger"><i class="bi bi-trash"></i></button>
+                                        </form>
+                                    </td>
+                                    {% endif %}
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        <i class="bi bi-receipt opacity-50 d-block mb-3" style="font-size: 3rem;"></i>
+                                        Adisyona henüz yemek eklenmemiş.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-primary d-flex justify-content-between align-items-center py-4 px-4 shadow-sm" role="alert">
+                <div>
+                    <h4 class="alert-heading fw-bold m-0 text-dark"><i class="bi bi-graph-up-arrow me-2 text-primary"></i> Masanın Hammadde Maliyeti</h4>
+                    <small class="text-muted">Bu siparişi hazırlamak için depodan çıkan ürünlerin anlık toplam tutarı.</small>
+                </div>
+                <div class="display-4 fw-bold text-primary">{{ "%.2f"|format(toplam_maliyet) }} <span class="fs-4 text-dark">₺</span></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    
+    <div id="gizli-mesajlar" style="display: none;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-mesaj-kutu" data-kategori="{{ category }}">
+                        {{ message | safe }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.flash-mesaj-kutu').forEach(function(kutu) {
+                let kategori = kutu.getAttribute('data-kategori');
+                let mesajIcerik = kutu.innerHTML;
+                
+                Swal.fire({
+                    icon: kategori === 'error' ? 'error' : 'success',
+                    title: kategori === 'error' ? 'Stok Yetersiz!' : 'Başarılı!',
+                    html: mesajIcerik,
+                    confirmButtonColor: kategori === 'error' ? '#dc3545' : '#198754',
+                    confirmButtonText: 'Tamam'
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

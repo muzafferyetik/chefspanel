@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maliyet Optimizatörü - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark mb-4 shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('anasayfa') }}">
+            <i class="bi bi-shop me-1"></i> {{ session['isletme_adi'] if session.get('isletme_adi') else 'Yönetim Paneli' }}
+        </a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto align-items-center">
+                {% if session.get('rol') == 'admin' %}
+                    <li class="nav-item"><a class="nav-link text-warning fw-bold" href="{{ url_for('admin_panel') }}"><i class="bi bi-shield-lock-fill"></i> Admin Paneli</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('anasayfa') }}">Ana Sayfa</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('siparisler') }}">Siparişler</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('malzemeler') }}">Depo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('tarifler') }}">Tarifler</a></li>
+                {% endif %}
+
+                <li class="nav-item ms-3 border-start ps-3">
+                    <a class="nav-link text-danger fw-bold" href="{{ url_for('logout') }}">
+                        <i class="bi bi-box-arrow-right"></i> Çıkış
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container pb-5">
+    {% if session.get('paket_tipi') == 'Ücretsiz' and session.get('rol') != 'admin' %}
+    <div class="text-center mb-4">
+        <span class="badge bg-light text-muted border mb-1" style="font-size: 0.6rem;">REKLAM</span>
+        <div class="border rounded bg-white shadow-sm d-flex align-items-center justify-content-center" style="height: 90px; overflow: hidden;">
+            <p class="text-muted small m-0">Google AdSense Reklam Alanı</p>
+        </div>
+    </div>
+
+    {% if session.pop('yeni_giris', None) %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: '<strong>Sınırları Kaldırın! 🚀</strong>',
+                html: 'Reklamları gizlemek, <b>Yapay Zeka (Fiş Okuma)</b> özelliklerini açmak ve VIP destek almak için premium paketlerimizi inceleyin.',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#212529',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Paketleri İncele',
+                cancelButtonText: 'Ücretsiz Kullanmaya Devam Et'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ url_for('paketler') }}";
+                }
+            });
+        });
+    </script>
+    {% endif %}
+    {% endif %}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold m-0 text-dark">Yönetim Paneline Hoş Geldiniz</h2>
+            <p class="text-muted m-0">İşletmenizin siparişlerini ve gıda maliyetlerini profesyonelce kontrol edin.</p>
+        </div>
+        <button onclick="gunSonuRaporu()" class="btn btn-dark btn-lg shadow-sm fw-bold position-relative">
+            <i class="bi bi-calculator me-2"></i> Günü Kapat (Z Raporu)
+            {% if kapanacak_siparis_sayisi > 0 %}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light border-2">
+                    {{ kapanacak_siparis_sayisi }} Sipariş Bekliyor
+                </span>
+            {% endif %}
+        </button>
+    </div>
+
+    <div class="row justify-content-center g-4 mb-5">
+        <div class="col-md-4">
+            <a href="{{ url_for('siparisler') }}" class="dashboard-card card h-100 p-4 border-top border-primary border-4 shadow-sm bg-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-bell icon-lg text-primary" style="background: rgba(13, 110, 253, 0.1);"></i>
+                    <h4 class="card-title fw-bold mt-3">Sipariş Yönetimi</h4>
+                    <span class="badge bg-primary rounded-pill px-3 py-2 fs-6 mt-2">Aktif: {{ siparis_sayisi }} Adisyon</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="{{ url_for('malzemeler') }}" class="dashboard-card card h-100 p-4 border-top border-success border-4 shadow-sm bg-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-box2-heart icon-lg text-success" style="background: rgba(39, 174, 96, 0.1);"></i>
+                    <h4 class="card-title fw-bold mt-3">Malzeme Deposu</h4>
+                    <span class="badge bg-success rounded-pill px-3 py-2 fs-6 mt-2">Kayıtlı: {{ malzeme_sayisi }} Ürün</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="{{ url_for('tarifler') }}" class="dashboard-card card h-100 p-4 border-top border-danger border-4 shadow-sm bg-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-journal-richtext icon-lg text-danger" style="background: rgba(220, 53, 69, 0.1);"></i>
+                    <h4 class="card-title fw-bold mt-3">Restoran Menüsü</h4>
+                    <span class="badge bg-danger rounded-pill px-3 py-2 fs-6 mt-2">Kayıtlı: {{ tarif_sayisi }} Yemek</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 bg-white p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold m-0 text-dark"><i class="bi bi-grid-3x3-gap-fill text-dark me-2"></i> Oturma Planı</h3>
+                <small class="text-muted">Masalara tıklayarak yeni sipariş açabilir veya dolu masaların detayına gidebilirsiniz.</small>
+            </div>
+
+            <form action="/masa_ekle" method="POST" class="d-flex gap-2">
+                <input type="text" class="form-control bg-light" name="masa_adi" placeholder="Örn: Teras 1" required>
+                <button type="submit" class="btn btn-dark fw-bold px-3"><i class="bi bi-plus-lg"></i></button>
+            </form>
+        </div>
+
+        <div class="row g-3">
+            {% for masa in masalar %}
+                {% set masa_adi = masa['masa_adi'] %}
+
+                <div class="col-6 col-md-4 col-lg-3">
+                    {% if masa_adi in dolu_masalar %}
+                        {% set masa_durum = dolu_masalar[masa_adi]['durum'] %}
+                        {% set siparis_id = dolu_masalar[masa_adi]['id'] %}
+
+                        {% if masa_durum == 'Hazırlanıyor' %}
+                            <a href="{{ url_for('siparis_detay', id=siparis_id) }}" class="card masa-card masa-dolu p-3 text-center h-100 shadow-sm text-dark d-block">
+                                <i class="bi bi-people-fill fs-2 mb-2 opacity-75"></i>
+                                <h5 class="fw-bold m-0">{{ masa_adi }}</h5>
+                                <span class="badge bg-danger mt-2"><i class="bi bi-fire"></i> Mutfakta</span>
+                            </a>
+                        {% else %}
+                            <form action="/siparis_durum/{{ siparis_id }}/Tamamlandı?next=anasayfa" method="POST" class="h-100" onsubmit="masaBosaltOnayi(event, this)">
+                                <button type="submit" class="card masa-card w-100 p-3 text-center h-100 shadow-sm text-dark d-block" style="background: linear-gradient(135deg, #cff4fc 0%, #9eeaf9 100%); border-color: #0dcaf0 !important;">
+                                    <i class="bi bi-cup-hot-fill fs-2 mb-2 opacity-75 text-info"></i>
+                                    <h5 class="fw-bold m-0">{{ masa_adi }}</h5>
+                                    <span class="badge bg-info text-dark mt-2"><i class="bi bi-check2-all"></i> Yeniyor</span>
+                                    <div class="mt-2 small text-muted">Boşaltmak İçin Tıkla</div>
+                                </button>
+                            </form>
+                        {% endif %}
+                    {% else %}
+                        <div class="card masa-card masa-bos p-3 text-center h-100 shadow-sm position-relative">
+                            <form action="/masa_sil/{{ masa['id'] }}" method="POST" onsubmit="silmeOnayi(event, this)" class="position-absolute top-0 end-0 m-2">
+                                <button type="submit" class="btn btn-sm p-0 text-success opacity-50 hover-opacity-100" title="Masayı Sil"><i class="bi bi-x-circle-fill fs-5"></i></button>
+                            </form>
+
+                            <form action="/hizli_siparis_ac" method="POST" class="w-100 h-100 d-flex flex-column justify-content-center align-items-center" onclick="this.submit()">
+                                <input type="hidden" name="masa_adi" value="{{ masa_adi }}">
+                                <i class="bi bi-cup-hot fs-2 mb-2 text-success opacity-75"></i>
+                                <h5 class="fw-bold m-0 text-success">{{ masa_adi }}</h5>
+                                <span class="badge bg-success mt-2 bg-opacity-75 text-white">Müsait</span>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="col-12 text-center py-4 text-muted">
+                    <i class="bi bi-layout-text-window opacity-50 d-block mb-2" style="font-size: 3rem;"></i>
+                    Sistemde henüz kayıtlı masa bulunmuyor. Sağ üstten ekleyebilirsiniz.
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+<div id="gizli-mesajlar" style="display: none;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-mesaj-kutu" data-kategori="{{ category }}">{{ message | safe }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.flash-mesaj-kutu').forEach(function(kutu) {
+            let kategori = kutu.getAttribute('data-kategori');
+            let mesajIcerik = kutu.innerHTML;
+            Swal.fire({
+                icon: kategori === 'error' ? 'error' : 'success',
+                title: kategori === 'error' ? 'Uyarı!' : 'Başarılı!',
+                html: mesajIcerik,
+                confirmButtonColor: kategori === 'error' ? '#dc3545' : '#198754',
+                confirmButtonText: 'Tamam',
+                timer: 3000
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

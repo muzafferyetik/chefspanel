@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Süper Yönetici Paneli</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-5 shadow-sm">
+    <div class="container">
+        <a class="navbar-brand text-warning" href="{{ url_for('admin_panel') }}"><i class="bi bi-shield-lock-fill"></i> SİSTEM YÖNETİMİ</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item me-3">
+                    <a class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold" href="{{ url_for('anasayfa') }}">
+                        <i class="bi bi-shop"></i> Kendi Restoranıma Dön
+                    </a>
+                </li>
+                <li class="nav-item border-start ps-3">
+                    <a class="nav-link text-danger fw-bold" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Güvenli Çıkış</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container pb-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="fw-bold"><i class="bi bi-diagram-3 text-primary me-2"></i> Müşteri (İşletme) Yönetimi</h2>
+            <p class="text-muted">Sisteme kayıtlı olan tüm işletmeleri buradan görebilir, şifrelerini değiştirebilir veya silebilirsiniz.</p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 border-top border-primary border-4 bg-white">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="m-0 fw-bold text-dark">Kayıtlı İşletmeler</h5>
+            <span class="badge bg-primary fs-6">{{ toplam_isletme }} Aktif İşletme</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle m-0">
+    <thead class="table-light">
+        <tr>
+            <th class="ps-4">ID</th>
+            <th>İşletme Adı</th>
+            <th>Paket</th> <th>Adres</th>
+            <th class="text-center">Menü</th>
+            <th class="text-center">Sipariş</th>
+            <th class="text-end pe-4">Patron İşlemleri</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for isletme in isletmeler %}
+        <tr>
+            <td class="ps-4 text-muted fw-bold">#{{ isletme['id'] }}</td>
+            <td class="fw-bold fs-5 text-dark">{{ isletme['isletme_adi'] }}</td>
+            <td> {% if isletme['paket_tipi'] == 'Pro' %}
+                    <span class="badge bg-success">Pro</span>
+                {% else %}
+                    <span class="badge bg-secondary">Ücretsiz</span>
+                {% endif %}
+            </td>
+            <td class="text-muted small">{{ isletme['adres'] if isletme['adres'] else '-' }}</td>
+            <td class="text-center">{{ isletme['tarif_sayisi'] }}</td>
+            <td class="text-center">{{ isletme['siparis_sayisi'] }}</td>
+            <td class="text-end pe-4">
+                <div class="d-flex justify-content-end gap-2">
+                    <form action="/admin/paket_guncelle/{{ isletme['id'] }}/{{ 'Ücretsiz' if isletme['paket_tipi'] == 'Pro' else 'Pro' }}" method="POST">
+                        <button type="submit" class="btn btn-sm btn-{{ 'warning' if isletme['paket_tipi'] == 'Pro' else 'success' }}" title="Paketi Değiştir">
+                            <i class="bi bi-star-fill"></i> {{ 'Düşür' if isletme['paket_tipi'] == 'Pro' else 'Pro Yap' }}
+                        </button>
+                    </form>
+
+                    <form action="/admin/sifre_resetle/{{ isletme['id'] }}" method="POST" class="d-flex gap-1">
+                        <input type="text" class="form-control form-control-sm" name="yeni_parola" placeholder="Şifre" style="width: 80px;">
+                        <button type="submit" class="btn btn-sm btn-dark"><i class="bi bi-key"></i></button>
+                    </form>
+
+                    <form action="/admin/isletme_sil/{{ isletme['id'] }}" method="POST" onsubmit="return confirm('SİLİNSİN Mİ?')">
+                        <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<div id="gizli-mesajlar" style="display: none;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-mesaj-kutu" data-kategori="{{ category }}">{{ message | safe }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.flash-mesaj-kutu').forEach(function(kutu) {
+            let kategori = kutu.getAttribute('data-kategori');
+            let mesajIcerik = kutu.innerHTML;
+            Swal.fire({
+                icon: kategori === 'error' ? 'error' : 'success',
+                title: kategori === 'error' ? 'Hata!' : 'Başarılı',
+                html: mesajIcerik,
+                confirmButtonColor: '#2c3e50',
+                confirmButtonText: 'Tamam'
+            });
+        });
+    });
+</script>
+</body>
+</html>

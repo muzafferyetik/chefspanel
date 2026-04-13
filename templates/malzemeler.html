@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maliyet Dedektifi - Malzemeler</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark mb-4 shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('anasayfa') }}">
+            <i class="bi bi-shop me-1"></i> {{ session['isletme_adi'] if session.get('isletme_adi') else 'Yönetim Paneli' }}
+        </a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto align-items-center">
+                {% if session.get('rol') == 'admin' %}
+                    <li class="nav-item"><a class="nav-link text-warning fw-bold" href="{{ url_for('admin_panel') }}"><i class="bi bi-shield-lock-fill"></i> Admin Paneli</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('anasayfa') }}">Ana Sayfa</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('siparisler') }}">Siparişler</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('malzemeler') }}">Depo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('tarifler') }}">Tarifler</a></li>
+                {% endif %}
+                
+                <li class="nav-item ms-3 border-start ps-3">
+                    <a class="nav-link text-danger fw-bold" href="{{ url_for('logout') }}">
+                        <i class="bi bi-box-arrow-right"></i> Çıkış
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
+        <h2 class="m-0 fw-bold"><i class="bi bi-box2-heart text-warning me-2"></i> Güncel Depo Stok ve Fiyatları</h2>
+        <button type="button" class="btn btn-outline-dark fw-bold rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#fisModal">
+            <i class="bi bi-receipt me-2"></i> Akıllı Fiş Tara
+        </button>
+    </div>
+
+    <div class="card mb-5 shadow-sm border-0 border-top border-primary border-4">
+        <div class="card-body p-4">
+            <h5 class="card-title fw-bold mb-4"><i class="bi bi-plus-circle text-success me-2"></i> Depoya Yeni Malzeme Ekle</h5>
+            <form action="/ekle" method="POST" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label text-muted small fw-bold">Malzeme Adı</label>
+                    <input type="text" class="form-control" name="ad" required placeholder="Örn: Süt">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-muted small fw-bold">Birim</label>
+                    <select class="form-select" name="birim">
+                        <option value="kg">Kilogram (kg)</option>
+                        <option value="lt">Litre (lt)</option>
+                        <option value="adet">Adet</option>
+                        <option value="gram">Gram (gr)</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-muted small fw-bold">Başlangıç Stoğu</label>
+                    <input type="number" step="0.01" class="form-control fw-bold" name="stok" value="0" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small fw-bold">Birim Fiyatı (TL)</label>
+                    <div class="input-group">
+                        <input type="number" step="0.01" min="0.01" class="form-control" name="fiyat" required placeholder="0.00">
+                        <span class="input-group-text bg-white">₺</span>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100 py-2"><i class="bi bi-check2"></i> Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle data-table m-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="ps-4">No</th>
+                            <th>Malzeme Adı</th>
+                            <th>Mevcut Stok</th>
+                            <th class="text-end pe-4">Stok & Fiyat Güncelle - İşlemler</th> 
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for malzeme in malzemeler %}
+                        <tr>
+                            <td class="ps-4 text-muted small" data-sort="{{ malzeme['id'] }}">#{{ malzeme['id'] }}</td>
+                            <td class="fw-bold fs-6">
+                                {{ malzeme['ad'] }}
+                                {% if malzeme['stok_miktari'] <= 0 %}
+                                    <i class="bi bi-exclamation-triangle-fill text-danger ms-2" title="Stok Tükenmiş!"></i>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% set stok_renk = 'success' if malzeme['stok_miktari'] > 10 else ('warning' if malzeme['stok_miktari'] > 0 else 'danger') %}
+                                <span class="badge bg-{{ stok_renk }} {% if stok_renk == 'warning' %}text-dark{% endif %} fs-6 px-3 py-2 border shadow-sm">
+                                    {{ malzeme['stok_miktari'] }} {{ malzeme['birim'] }}
+                                </span>
+                            </td>
+                            
+                            <td class="text-end pe-4">
+                                <div class="d-flex gap-2 justify-content-end align-items-center">
+                                    <form action="/guncelle/{{ malzeme['id'] }}" method="POST" class="d-flex gap-2 mb-0">
+                                        <div class="input-group input-group-sm" style="width: 110px;">
+                                            <span class="input-group-text bg-light text-muted" title="Stok Miktarı"><i class="bi bi-box-seam"></i></span>
+                                            <input type="number" step="0.01" class="form-control text-center fw-bold" name="stok" value="{{ malzeme['stok_miktari'] }}" required>
+                                        </div>
+                                        <div class="input-group input-group-sm" style="width: 110px;">
+                                            <span class="input-group-text bg-light text-muted">₺</span>
+                                            <input type="number" step="0.01" min="0.01" class="form-control text-center fw-bold" name="fiyat" value="{{ malzeme['birim_fiyat'] }}" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-sm btn-dark shadow-sm" title="Stok ve Fiyatı Kaydet"><i class="bi bi-check2-all"></i></button>
+                                    </form>
+
+                                    <button type="button" class="btn btn-light btn-sm border ms-2 shadow-sm" title="Fiyat Geçmişi"
+                                            data-id="{{ malzeme['id'] }}" 
+                                            data-ad="{{ malzeme['ad'] }}" 
+                                            onclick="gecmisGoster(this.dataset.id, this.dataset.ad)">
+                                        <i class="bi bi-clock-history text-info"></i>
+                                    </button>
+                                    
+                                    <form action="/sil/{{ malzeme['id'] }}" method="POST" class="mb-0" onsubmit="silmeOnayi(event, this)">
+                                        <button type="submit" class="btn btn-light btn-sm border shadow-sm" title="Sil"><i class="bi bi-trash text-danger"></i></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+<div class="modal fade" id="fisModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-bottom-0 bg-dark text-white rounded-top-4">
+                <h5 class="modal-title fw-bold"><i class="bi bi-magic text-warning me-2"></i> Akıllı Fiş Analizi</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-muted small mb-4">Sistem fişinizi okuyacak, yeni ürünleri ekleyecek ve mevcut ürünlerin fiyatı değiştiyse otomatik olarak güncelleyip geçmişe kaydedecektir.</p>
+                <form id="fisForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Fiş / Makbuz Görseli Yükle</label>
+                        <input class="form-control form-control-lg" type="file" name="fis_gorseli" accept="image/*" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-dark fw-bold px-4" onclick="fisTaraBtn()">Görseli Analiz Et <i class="bi bi-arrow-right ms-2"></i></button>
+            </div>
+        </div>
+    </div>
+</div>  
+</body>
+</html>

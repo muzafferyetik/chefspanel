@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ tarif['yemek_adi'] }} - Maliyet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark mb-4 shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('anasayfa') }}">
+            <i class="bi bi-shop me-1"></i> {{ session['isletme_adi'] if session.get('isletme_adi') else 'Yönetim Paneli' }}
+        </a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto align-items-center">
+                {% if session.get('rol') == 'admin' %}
+                    <li class="nav-item"><a class="nav-link text-warning fw-bold" href="{{ url_for('admin_panel') }}"><i class="bi bi-shield-lock-fill"></i> Admin Paneli</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('anasayfa') }}">Ana Sayfa</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('siparisler') }}">Siparişler</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('malzemeler') }}">Depo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('tarifler') }}">Tarifler</a></li>
+                {% endif %}
+                
+                <li class="nav-item ms-3 border-start ps-3">
+                    <a class="nav-link text-danger fw-bold" href="{{ url_for('logout') }}">
+                        <i class="bi bi-box-arrow-right"></i> Çıkış
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container pb-5">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
+        <div>
+            <span class="badge bg-danger mb-2 px-3 py-1">Tarif Maliyet Analizi</span>
+            <h2 class="m-0 fw-bold display-6">{{ tarif['yemek_adi'] }}</h2>
+        </div>
+        <a href="{{ url_for('tarifler') }}" class="btn btn-outline-dark rounded-pill px-4 py-2"><i class="bi bi-arrow-left me-2"></i> Menüye Dön</a>
+    </div>
+
+    <div class="row g-4 mt-2">
+        <div class="col-lg-4">
+            <div class="card p-2 shadow-sm border-0 border-top border-success border-4">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-4"><i class="bi bi-plus-circle text-success me-2"></i> İçerik Ekle</h5>
+                    <form method="POST">
+                        <div class="mb-4">
+                            <label class="form-label text-muted small fw-bold">Depodan Seç</label>
+                            <select class="form-select py-2" name="malzeme_id" required>
+                                <option value="">Malzeme Seçin...</option>
+                                {% for malzeme in malzemeler %}
+                                    <option value="{{ malzeme['id'] }}">
+                                        {{ malzeme['ad'] }} ({{ malzeme['birim_fiyat'] }} ₺ / {{ malzeme['birim'] }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label text-muted small fw-bold">Kullanım Miktarı</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" min="0.01" class="form-control py-2" name="miktar" placeholder="Örn: 150" required>
+                                <span class="input-group-text bg-white text-muted">gr/ml/adet</span>
+                            </div>
+                            <div class="form-text text-danger opacity-75 small mt-2"><i class="bi bi-info-circle"></i> Kg ve Lt ürünler için gram veya mililitre cinsinden giriniz.</div>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 py-2 fw-bold"><i class="bi bi-cart-plus me-2"></i> Tabloya Ekle</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card mb-4 overflow-hidden shadow-sm border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle m-0">
+                            <thead class="table-light text-muted">
+                                <tr>
+                                    <th class="ps-4 py-3">Kullanılan Malzeme</th>
+                                    <th>Miktar</th>
+                                    <th>Birim Fiyatı</th>
+                                    <th>Maliyet</th>
+                                    <th class="text-end pe-4">Sil</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for satir in kullanilan_malzemeler %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <span class="fw-bold text-dark">{{ satir['ad'] }}</span>
+                                            
+                                            {% if satir['uyari_okundu'] == 0 %}
+                                                {% set trend_class = 'danger' if satir['fiyat_durumu'] == 'artti' else 'success' %}
+                                                {% set trend_text = 'Maliyeti Yükseldi' if satir['fiyat_durumu'] == 'artti' else 'Maliyeti Düştü' %}
+                                                {% set trend_icon = 'bi-arrow-up-right-circle' if satir['fiyat_durumu'] == 'artti' else 'bi-arrow-down-right-circle' %}
+                                                
+                                                <span class="badge rounded-pill text-{{ trend_class }} bg-{{ trend_class }} bg-opacity-10 border border-{{ trend_class }} d-inline-flex align-items-center shadow-sm" id="uyari-malzeme-{{ satir['malzeme_id'] }}">
+                                                    <i class="bi {{ trend_icon }} me-1"></i> {{ trend_text }}
+                                                    <i class="bi bi-x ms-2" style="cursor:pointer; font-size:1.2rem; margin-right: -3px;" data-id="{{ satir['malzeme_id'] }}" onclick="uyariKapat('malzeme', this.dataset.id)" title="Gizle"></i>
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    
+                                    <td><span class="badge bg-light text-dark border px-2 py-1">{{ satir['miktar'] }} {{ 'gr' if satir['birim'] == 'kg' else 'ml' if satir['birim'] == 'lt' else satir['birim'] }}</span></td>
+                                    <td class="text-muted small">{{ satir['birim_fiyat'] }} ₺ / {{ satir['birim'] }}</td>
+                                    <td class="text-danger fw-bold fs-6">{{ "%.2f"|format(satir['satir_maliyeti']) }} ₺</td>
+                                    <td class="text-end pe-4">
+                                        <form action="{{ url_for('tariften_sil', tarif_id=tarif['id'], malzeme_id=satir['malzeme_id']) }}" method="POST" style="display:inline;" onsubmit="silmeOnayi(event, this)">
+                                            <button type="submit" class="btn btn-sm btn-light border text-danger"><i class="bi bi-trash"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        <i class="bi bi-basket2 opacity-50 d-block mb-3" style="font-size: 3rem;"></i>
+                                        Bu tarife henüz malzeme eklenmemiş.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-danger d-flex justify-content-between align-items-center py-4 px-4 shadow-sm" role="alert">
+                <div>
+                    <h4 class="alert-heading fw-bold m-0 text-dark"><i class="bi bi-calculator me-2 text-danger"></i> Toplam Porsiyon Maliyeti</h4>
+                    <small class="text-muted">Bu yemeği üretmek için harcanan net tutar.</small>
+                </div>
+                <div class="display-4 fw-bold text-danger">{{ "%.2f"|format(toplam_maliyet) }} <span class="fs-4 text-dark">₺</span></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

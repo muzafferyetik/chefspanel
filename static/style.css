@@ -1,0 +1,157 @@
+/* --- GOOGLE FONTS --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* --- SAYFA GEÇİŞLERİNDEKİ (SCROLLBAR) KAYMAYI ÖNLEME --- */
+html {
+    overflow-y: scroll;
+} 
+/* --- RENK PALETİ VE DEĞİŞKENLER --- */
+:root {
+    --bg-color: #f4f6f8; 
+    --navbar-bg: #2c3e50; 
+    --accent-orange: #e67e22; 
+    --accent-green: #27ae60; 
+    --text-main: #333333;
+    --card-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+/* --- GENEL AYARLAR --- */
+body { 
+    background-color: var(--bg-color); 
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-main);
+}
+
+/* --- ÜST MENÜ (NAVBAR) ÖZELLEŞTİRMESİ --- */
+.navbar {
+    background-color: var(--navbar-bg) !important;
+    border-bottom: 4px solid var(--accent-orange); 
+    padding: 15px 0;
+}
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-size: 1.4rem;
+}
+.nav-link {
+    font-weight: 500;
+    margin-left: 10px;
+    transition: color 0.3s;
+}
+.nav-link:hover, .nav-link.active {
+    color: var(--accent-orange) !important;
+}
+
+/* --- KART VE GÖLGE EFEKTLERİ --- */
+.card {
+    border-radius: 16px;
+    border: none !important;
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s ease-in-out;
+    background-color: #ffffff;
+}
+
+.card-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    border-radius: 16px 16px 0 0 !important;
+}
+
+/* ANA SAYFA - TIKLANABİLİR KARTLAR */
+.dashboard-card { 
+    cursor: pointer; 
+    text-decoration: none; 
+    color: inherit; 
+    display: block;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-card:hover { 
+    transform: translateY(-8px); 
+    box-shadow: 0 15px 35px rgba(230, 126, 34, 0.15) !important; 
+    color: inherit;
+}
+
+.icon-lg { 
+    font-size: 3.5rem; 
+    color: var(--accent-orange); 
+    display: inline-block;
+    padding: 15px;
+    background: rgba(230, 126, 34, 0.1);
+    border-radius: 50%;
+    margin-bottom: 20px;
+}
+
+.dashboard-card:nth-child(2) .icon-lg {
+    color: var(--accent-green);
+    background: rgba(39, 174, 96, 0.1);
+}
+
+/* --- TABLO ÖZELLEŞTİRMELERİ --- */
+.table {
+    margin-bottom: 0;
+}
+.table > :not(caption) > * > * {
+    padding: 1rem 0.75rem;
+    border-bottom-color: rgba(0,0,0,0.03);
+}
+.table-dark {
+    background-color: var(--navbar-bg);
+    color: white;
+}
+.table-dark th {
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+.table-hover tbody tr:hover {
+    background-color: #fcfcfc;
+    transform: scale(1.005);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+/* --- LİSTE ELEMANLARI (TARİFLER İÇİN) --- */
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid rgba(0,0,0,0.03);
+    transition: background-color 0.2s ease, padding-left 0.2s ease;
+    margin-bottom: 2px;
+}
+.list-group-item:last-child {
+    border-bottom: none;
+}
+.list-group-item:hover {
+    background-color: #fffaf6; 
+    padding-left: 25px !important; 
+    color: var(--accent-orange);
+}
+
+/* --- BUTONLAR --- */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+.btn-primary {
+    background-color: var(--accent-orange);
+    border-color: var(--accent-orange);
+}
+.btn-primary:hover {
+    background-color: #d35400;
+    border-color: #d35400;
+}
+
+/* --- TOPLAM MALİYET KUTUSU EFEKTİ --- */
+.alert-danger {
+    background-color: #fff5f5;
+    border: none;
+    border-left: 6px solid #dc3545;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+}
+
+/* --- MASA GRID STİLLERİ --- */
+.masa-card { transition: all 0.2s ease-in-out; cursor: pointer; text-decoration: none; }
+.masa-card:hover { transform: scale(1.03); }
+.masa-dolu { background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%); border-color: #ffc107 !important; }
+.masa-bos { background: linear-gradient(135deg, #d1e7dd 0%, #c3e6cb 100%); border-color: #198754 !important; }

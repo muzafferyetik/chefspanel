@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Yap - Restoran ERP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-person-circle text-primary" style="font-size: 3rem;"></i>
+                        <h2 class="fw-bold mt-2">Sisteme Giriş</h2>
+                        <p class="text-muted">Yönetim paneline erişmek için giriş yapın.</p>
+                    </div>
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">İşletme Adı</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-building"></i></span>
+                                <input type="text" class="form-control py-2" name="isletme_adi" required placeholder="İşletme adınızı girin">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-muted">Parola</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-shield-lock"></i></span>
+                                <input type="password" class="form-control py-2" name="parola" required placeholder="Parolanızı girin">
+                            </div>
+                        </div>
+                        <div class="text-end mb-4 mt-n2">
+                            <a href="#" onclick="Swal.fire('Bilgi', 'Şifrenizi unuttuysanız lütfen Admin ile iletişime geçin. Sizin için yeni bir şifre tanımlayacaktır.', 'info')" class="text-primary small text-decoration-none fw-bold">Şifremi Unuttum</a>
+                        </div>
+                        <button type="submit" class="btn btn-dark w-100 py-3 fw-bold rounded-pill">Giriş Yap <i class="bi bi-box-arrow-in-right ms-2"></i></button>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <span class="text-muted">Hesabınız yok mu?</span> 
+                        <a href="{{ url_for('register') }}" class="text-primary fw-bold text-decoration-none">Yeni Hesap Oluştur</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div id="gizli-mesajlar" style="display: none;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-mesaj-kutu" data-kategori="{{ category }}">
+                    {{ message | safe }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.flash-mesaj-kutu').forEach(function(kutu) {
+            let kategori = kutu.getAttribute('data-kategori');
+            let mesajIcerik = kutu.innerHTML;
+            
+            // Kategoriye göre ikon ve başlık belirleme
+            let iconType = 'success';
+            let titleText = 'Başarılı!';
+            
+            if (kategori === 'error') {
+                iconType = 'error';
+                titleText = 'Hata!';
+            } else if (kategori === 'warning') {
+                iconType = 'warning';
+                titleText = 'Sistem Mesajı';
+            }
+
+            Swal.fire({
+                icon: iconType,
+                title: titleText,
+                html: mesajIcerik,
+                confirmButtonColor: '#2c3e50',
+                confirmButtonText: 'Tamam'
+            });
+        });
+    });
+</script>
+</body>
+</html>
