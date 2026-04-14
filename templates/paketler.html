@@ -92,7 +92,18 @@
                     <div class="mb-4">
                         <span class="display-4 fw-bold">₺0(Ücretsiz)</span><span class="text-muted">/ay</span>
                     </div>
-                    <a href="#" class="btn btn-outline-dark w-100 py-2 mb-4 fw-bold">Planı Seç</a>
+                    {% if session.get('isletme_id') %}
+                        {% if session.get('paket_tipi') == 'Ücretsiz' %}
+                            <button class="btn btn-success w-100 py-2 mb-4 fw-bold" disabled><i class="bi bi-check-circle"></i> Mevcut Planınız</button>
+                        {% else %}
+                            <form action="{{ url_for('paket_sec') }}" method="POST">
+                                <input type="hidden" name="paket_tipi" value="Ücretsiz">
+                                <button type="submit" class="btn btn-outline-dark w-100 py-2 mb-4 fw-bold">Bu Plana Düşür</button>
+                            </form>
+                        {% endif %}
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-dark w-100 py-2 mb-4 fw-bold">Giriş Yap / Ücretsiz Başla</a>
+                    {% endif %}
                     
                     <p class="fw-bold fs-6">Bu plana dahil:</p>
                     <ul class="list-unstyled">
@@ -113,7 +124,18 @@
                     <div class="mb-4">
                         <span class="display-4 fw-bold">₺500</span><span class="text-muted">/ay</span>
                     </div>
-                    <a href="#" class="btn btn-dark w-100 py-2 mb-4 fw-bold">Planı Seç</a>
+                    {% if session.get('isletme_id') %}
+                        {% if session.get('paket_tipi') == 'Aylık' %}
+                            <button class="btn btn-success w-100 py-2 mb-4 fw-bold" disabled><i class="bi bi-check-circle"></i> Mevcut Planınız</button>
+                        {% else %}
+                            <form action="{{ url_for('paket_sec') }}" method="POST">
+                                <input type="hidden" name="paket_tipi" value="Aylık">
+                                <button type="submit" class="btn btn-dark w-100 py-2 mb-4 fw-bold">Hemen Yükselt</button>
+                            </form>
+                        {% endif %}
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-dark w-100 py-2 mb-4 fw-bold">Giriş Yaparak Seç</a>
+                    {% endif %}
                     
                     <p class="fw-bold fs-6">Bu plana dahil:</p>
                     <ul class="list-unstyled">
@@ -135,7 +157,18 @@
                     <div class="mb-4">
                         <span class="display-4 fw-bold">₺3600</span><span class="text-muted">/yıl</span>
                     </div>
-                    <a href="#" class="btn btn-outline-dark w-100 py-2 mb-4 fw-bold">Planı Seç</a>
+                    {% if session.get('isletme_id') %}
+                        {% if session.get('paket_tipi') == 'Yıllık' %}
+                            <button class="btn btn-success w-100 py-2 mb-4 fw-bold" disabled><i class="bi bi-check-circle"></i> Mevcut Planınız</button>
+                        {% else %}
+                            <form action="{{ url_for('paket_sec') }}" method="POST">
+                                <input type="hidden" name="paket_tipi" value="Yıllık">
+                                <button type="submit" class="btn btn-outline-dark w-100 py-2 mb-4 fw-bold">Hemen Yükselt</button>
+                            </form>
+                        {% endif %}
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-dark w-100 py-2 mb-4 fw-bold">Giriş Yaparak Seç</a>
+                    {% endif %}
                     
                     <p class="fw-bold fs-6">Bu plana dahil:</p>
                     <ul class="list-unstyled">

@@ -199,6 +199,27 @@ def logout():
 def paketler():
     # Bu sayfayı herkes görebilsin (login zorunluluğu yok)
     return render_template('paketler.html')
+@app.route('/paket_sec', methods=['POST'])
+@login_required
+def paket_sec():
+    yeni_paket = request.form.get('paket_tipi')
+    
+    # Sadece izin verilen paketler seçilebilsin
+    if yeni_paket in ['Ücretsiz', 'Aylık', 'Yıllık']:
+        conn = get_db_connection()
+        # 1. İşletmenin veritabanındaki paketini güncelle
+        conn.execute('UPDATE isletmeler SET paket_tipi = ? WHERE id = ?', (yeni_paket, session['isletme_id']))
+        conn.commit()
+        conn.close()
+        
+        # 2. O anki tarayıcı oturumundaki (session) paketi de hemen güncelle ki özellikleri anında açılsın
+        session['paket_tipi'] = yeni_paket
+        
+        # 3. Şık bir kutlama mesajı hazırla
+        flash(f'Tebrikler! Başarıyla <b>{yeni_paket}</b> planına geçtiniz. Tüm premium özellikler açıldı! 🚀', 'success')
+        
+    # İşlem bitince anasayfaya fırlat
+    return redirect(url_for('anasayfa'))
 
 # ==========================================
 # 1. ANA SAYFA VE MASA YÖNETİMİ
