@@ -59,6 +59,15 @@ def admin_required(f):
             return redirect(url_for('anasayfa'))
         return f(*args, **kwargs)
     return decorated_function
+def premium_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Eğer paket tipi 'Ücretsiz' ise erişimi engelle ve Paketler sayfasına yönlendir
+        if session.get('paket_tipi') == 'Ücretsiz':
+            flash('Bu muhteşem özelliği kullanmak için Aylık veya Yıllık Premium pakete geçmelisiniz! 🚀', 'error')
+            return redirect(url_for('paketler'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 # ==========================================
 # 0. KİMLİK DOĞRULAMA (LOGIN / REGISTER)
@@ -164,15 +173,21 @@ def admin_isletme_sil(id):
     conn.close()
     flash('İşletme ve ona ait TÜM veriler sistemden tamamen silindi.', 'success')
     return redirect(url_for('admin_panel'))
-@app.route('/admin/paket_guncelle/<int:id>/<paket>', methods=['POST'])
+@app.route('/admin/paket_guncelle/<int:id>', methods=['POST'])
 @login_required
 @admin_required
-def admin_paket_guncelle(id, paket):
-    conn = get_db_connection()
-    conn.execute('UPDATE isletmeler SET paket_tipi = ? WHERE id = ?', (paket, id))
-    conn.commit()
-    conn.close()
-    flash(f"İşletmenin paketi '{paket}' olarak güncellendi!", "success")
+def admin_paket_guncelle(id):
+    yeni_paket = request.form.get('paket_tipi')
+    
+    if yeni_paket in ['Ücretsiz', 'Aylık', 'Yıllık']:
+        conn = get_db_connection()
+        conn.execute('UPDATE isletmeler SET paket_tipi = ? WHERE id = ?', (yeni_paket, id))
+        conn.commit()
+        conn.close()
+        flash(f"İşletmenin aboneliği başarıyla '{yeni_paket}' paketine yükseltildi/düşürüldü!", "success")
+    else:
+        flash("Geçersiz bir paket seçimi yapıldı.", "error")
+        
     return redirect(url_for('admin_panel'))
 
 @app.route('/logout')
@@ -353,6 +368,7 @@ def malzeme_sil(id):
 # ==========================================
 @app.route('/fis_tara', methods=['POST'])
 @login_required
+@premium_required
 def fis_tara():
     if 'fis_gorseli' not in request.files: return {"hata": "Görsel bulunamadı"}, 400
     file = request.files['fis_gorseli']

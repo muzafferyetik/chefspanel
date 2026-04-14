@@ -59,30 +59,39 @@
         <tr>
             <td class="ps-4 text-muted fw-bold">#{{ isletme['id'] }}</td>
             <td class="fw-bold fs-5 text-dark">{{ isletme['isletme_adi'] }}</td>
-            <td> {% if isletme['paket_tipi'] == 'Pro' %}
-                    <span class="badge bg-success">Pro</span>
+            
+            <td> 
+                {% if isletme['paket_tipi'] == 'Yıllık' %}
+                    <span class="badge bg-success shadow-sm"><i class="bi bi-gem"></i> Yıllık</span>
+                {% elif isletme['paket_tipi'] == 'Aylık' %}
+                    <span class="badge bg-primary shadow-sm"><i class="bi bi-star-fill"></i> Aylık</span>
                 {% else %}
-                    <span class="badge bg-secondary">Ücretsiz</span>
+                    <span class="badge bg-secondary shadow-sm">Ücretsiz</span>
                 {% endif %}
             </td>
+            
             <td class="text-muted small">{{ isletme['adres'] if isletme['adres'] else '-' }}</td>
             <td class="text-center">{{ isletme['tarif_sayisi'] }}</td>
             <td class="text-center">{{ isletme['siparis_sayisi'] }}</td>
             <td class="text-end pe-4">
                 <div class="d-flex justify-content-end gap-2">
-                    <form action="/admin/paket_guncelle/{{ isletme['id'] }}/{{ 'Ücretsiz' if isletme['paket_tipi'] == 'Pro' else 'Pro' }}" method="POST">
-                        <button type="submit" class="btn btn-sm btn-{{ 'warning' if isletme['paket_tipi'] == 'Pro' else 'success' }}" title="Paketi Değiştir">
-                            <i class="bi bi-star-fill"></i> {{ 'Düşür' if isletme['paket_tipi'] == 'Pro' else 'Pro Yap' }}
-                        </button>
+                    
+                    <form action="/admin/paket_guncelle/{{ isletme['id'] }}" method="POST" class="d-flex gap-1">
+                        <select name="paket_tipi" class="form-select form-select-sm bg-light fw-bold" style="width: 105px;">
+                            <option value="Ücretsiz" {% if isletme['paket_tipi'] == 'Ücretsiz' %}selected{% endif %}>Ücretsiz</option>
+                            <option value="Aylık" {% if isletme['paket_tipi'] == 'Aylık' %}selected{% endif %}>Aylık</option>
+                            <option value="Yıllık" {% if isletme['paket_tipi'] == 'Yıllık' %}selected{% endif %}>Yıllık</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-dark" title="Paketi Onayla"><i class="bi bi-check2-circle"></i></button>
                     </form>
 
                     <form action="/admin/sifre_resetle/{{ isletme['id'] }}" method="POST" class="d-flex gap-1">
                         <input type="text" class="form-control form-control-sm" name="yeni_parola" placeholder="Şifre" style="width: 80px;">
-                        <button type="submit" class="btn btn-sm btn-dark"><i class="bi bi-key"></i></button>
+                        <button type="submit" class="btn btn-sm btn-secondary" title="Şifreyi Yenile"><i class="bi bi-key"></i></button>
                     </form>
 
-                    <form action="/admin/isletme_sil/{{ isletme['id'] }}" method="POST" onsubmit="return confirm('SİLİNSİN Mİ?')">
-                        <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                    <form action="/admin/isletme_sil/{{ isletme['id'] }}" method="POST" onsubmit="return confirm('İşletmeyi silmek istediğinize emin misiniz? Bu işlem geri alınamaz!')">
+                        <button type="submit" class="btn btn-sm btn-danger" title="Sistemi Kapat"><i class="bi bi-trash"></i></button>
                     </form>
                 </div>
             </td>
