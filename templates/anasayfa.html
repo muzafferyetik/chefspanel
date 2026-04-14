@@ -14,7 +14,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark mb-4 shadow-sm">
     <div class="container">
         <a class="navbar-brand" href="{{ url_for('anasayfa') }}">
-            <i class="bi bi-shop me-1"></i> {{ session['isletme_adi'] if session.get('isletme_adi') else 'Yönetim Paneli' }}
+            <i class="bi bi-shop me-1"></i> Yönetim Paneli
         </a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto align-items-center">
@@ -166,7 +166,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 1. Standart Flash Mesajları (Hata/Başarı uyarıları)
         document.querySelectorAll('.flash-mesaj-kutu').forEach(function(kutu) {
             let kategori = kutu.getAttribute('data-kategori');
             let mesajIcerik = kutu.innerHTML;
@@ -183,54 +182,111 @@
 </script>
 
 {% if session.pop('yeni_giris', None) and session.get('paket_tipi') == 'Ücretsiz' %}
+<style>
+    /* Popup'a özel modern stiller */
+    .modern-popup {
+        border-radius: 1.25rem !important;
+        padding-top: 0 !important;
+        overflow: visible !important;
+    }
+    .swal2-html-container {
+        margin: 0 !important;
+        overflow: visible !important;
+    }
+    /* Üstteki turuncu taşan ikon */
+    .modern-popup-header {
+        background-color: #ff471a;
+        width: 65px;
+        height: 65px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: -32px auto 20px auto;
+        box-shadow: 0 4px 15px rgba(255, 71, 26, 0.3);
+        border: 4px solid white;
+    }
+    /* Kartların standart tasarımı */
+    .modern-plan-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 1.5rem 1rem;
+        height: 100%;
+        background-color: white;
+        transition: all 0.3s ease;
+    }
+    /* "Aylık" Paketi vurgulayan sınıf */
+    .modern-plan-card.active {
+        border: 2px solid #0d6efd;
+        box-shadow: 0 8px 25px rgba(13, 110, 253, 0.15);
+        transform: scale(1.05);
+        position: relative;
+        z-index: 1;
+    }
+</style>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         Swal.fire({
-            title: '<h2 class="fw-bold">Chef\'s Panel\'e Hoş Geldiniz! 👨‍🍳</h2>',
+            customClass: {
+                popup: 'modern-popup',
+                // Butonları yan yana (d-flex) ve eşit genişlikte hizalayan Bootstrap sınıfları
+                actions: 'd-flex w-100 px-4 pb-4 pt-2 gap-3 m-0',
+                confirmButton: 'btn btn-dark w-50 py-2 fs-6 rounded-3 fw-bold m-0',
+                cancelButton: 'btn btn-light border w-50 py-2 fs-6 rounded-3 fw-bold m-0 text-dark'
+            },
+            buttonsStyling: false, // Bootstrap sınıflarının düzgün çalışması için SweetAlert stillerini kapatıyoruz
             html: `
-                <p class="text-muted mb-4">İşletmenizi bir üst seviyeye taşımak için size en uygun planı seçin:</p>
-                <div class="row g-2 text-start">
+                <div class="modern-popup-header text-white fs-3">
+                    <i class="bi bi-shop"></i>
+                </div>
+                <h3 class="fw-bold text-dark mb-2">Chef's Panel'e Hoş Geldiniz! 🧑‍🍳</h3>
+                <p class="text-muted mb-4 fs-6">İşletmenizi bir üst seviyeye taşımak için size en uygun planı seçin:</p>
+                
+                <div class="row g-3 px-3 pb-3 text-center">
                     <div class="col-4">
-                        <div class="p-2 border rounded bg-light h-100">
-                            <small class="fw-bold d-block">Temel</small>
-                            <span class="text-primary fw-bold small">0 ₺</span>
-                            <hr class="my-1">
-                            <ul class="list-unstyled mb-0" style="font-size: 0.65rem;">
-                                <li><i class="bi bi-check text-success"></i> Kurulum Rehberi</li>
-                                <li><i class="bi bi-check text-success"></i> Z Raporu</li>
+                        <div class="modern-plan-card">
+                            <div class="fw-bold text-dark mb-1 fs-6">Temel</div>
+                            <div class="mb-3">
+                                <span class="fs-2 fw-bold text-primary">0</span> <span class="text-muted fs-6">₺</span>
+                            </div>
+                            <ul class="list-unstyled text-start m-0" style="font-size: 0.8rem;">
+                                <li class="mb-2"><i class="bi bi-check2 text-success me-2 fw-bold"></i>Kurulum Rehberi</li>
+                                <li><i class="bi bi-check2 text-success me-2 fw-bold"></i>Z Raporu</li>
                             </ul>
                         </div>
                     </div>
                     <div class="col-4">
-                        <div class="p-2 border border-primary rounded bg-white h-100 shadow-sm">
-                            <small class="fw-bold d-block">Aylık</small>
-                            <span class="text-primary fw-bold small">500 ₺</span>
-                            <hr class="my-1">
-                            <ul class="list-unstyled mb-0" style="font-size: 0.65rem;">
-                                <li><i class="bi bi-star-fill text-warning"></i> Fiş Okuyucu</li>
-                                <li><i class="bi bi-check text-success"></i> Canlı Destek</li>
+                        <div class="modern-plan-card active">
+                            <div class="fw-bold text-dark mb-1 fs-6">Aylık</div>
+                            <div class="mb-3">
+                                <span class="fs-2 fw-bold text-primary">500</span> <span class="text-muted fs-6">₺</span>
+                            </div>
+                            <ul class="list-unstyled text-start m-0" style="font-size: 0.8rem;">
+                                <li class="mb-2"><i class="bi bi-star-fill text-warning me-2"></i>Fiş Okuyucu</li>
+                                <li><i class="bi bi-check2 text-success me-2 fw-bold"></i>Canlı Destek</li>
                             </ul>
                         </div>
                     </div>
                     <div class="col-4">
-                        <div class="p-2 border rounded bg-light h-100">
-                            <small class="fw-bold d-block">Yıllık</small>
-                            <span class="text-primary fw-bold small">3600 ₺</span>
-                            <hr class="my-1">
-                            <ul class="list-unstyled mb-0" style="font-size: 0.65rem;">
-                                <li><i class="bi bi-check text-success"></i> Her Şey Dahil</li>
-                                <li><i class="bi bi-check text-success"></i> 7/24 VIP</li>
+                        <div class="modern-plan-card">
+                            <div class="fw-bold text-dark mb-1 fs-6">Yıllık</div>
+                            <div class="mb-3">
+                                <span class="fs-2 fw-bold text-primary">3.600</span> <span class="text-muted fs-6">₺</span>
+                            </div>
+                            <ul class="list-unstyled text-start m-0" style="font-size: 0.8rem;">
+                                <li class="mb-2"><i class="bi bi-check2 text-success me-2 fw-bold"></i>Her Şey Dahil</li>
+                                <li><i class="bi bi-check2 text-success me-2 fw-bold"></i>7/24 VIP</li>
                             </ul>
                         </div>
                     </div>
                 </div>
             `,
             showCancelButton: true,
-            confirmButtonColor: '#212529',
-            cancelButtonColor: '#6c757d',
             confirmButtonText: 'Tüm Paketleri İncele',
             cancelButtonText: 'Daha Sonra',
-            width: '600px'
+            width: '680px',
+            showCloseButton: true, // Sağ üstteki çarpı ikonu
+            focusConfirm: false
         }).then((result) => {
             if (result.isConfirmed) {
                 window.location.href = "{{ url_for('paketler') }}";
