@@ -18,16 +18,16 @@
         </a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto align-items-center">
-                {% if session.get('rol') == 'admin' %}
-                    <li class="nav-item"><a class="nav-link text-warning fw-bold" href="{{ url_for('admin_panel') }}"><i class="bi bi-shield-lock-fill"></i> Admin Paneli</a></li>
+            {% if session.get('rol') == 'admin' %}
+                    <li class="nav-item"><a class="nav-link text-warning fw-bold {% if request.endpoint == 'admin_panel' %}active{% endif %}" href="{{ url_for('admin_panel') }}"><i class="bi bi-shield-lock-fill"></i> Admin Paneli</a></li>
                 {% else %}
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('anasayfa') }}">Ana Sayfa</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('siparisler') }}">Siparişler</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('malzemeler') }}">Depo</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('tarifler') }}">Tarifler</a></li>
-                    <li class="nav-item"><a class="nav-link fw-bold text-warning" href="{{ url_for('paketler') }}"><i class="bi bi-star-fill"></i> Paketler</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'anasayfa' %}text-warning fw-bold{% endif %}" href="{{ url_for('anasayfa') }}">Ana Sayfa</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'siparisler' or request.endpoint == 'siparis_detay' %}text-warning fw-bold{% endif %}" href="{{ url_for('siparisler') }}">Siparişler</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'malzemeler' %}text-warning fw-bold{% endif %}" href="{{ url_for('malzemeler') }}">Depo</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'tarifler' or request.endpoint == 'tarif_detay' %}text-warning fw-bold{% endif %}" href="{{ url_for('tarifler') }}">Tarifler</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold {% if request.endpoint == 'paketler' %}text-warning{% else %}text-warning opacity-75{% endif %}" href="{{ url_for('paketler') }}"><i class="bi bi-star-fill"></i> Paketler</a></li>
                 {% endif %}
-                
+
                 <li class="nav-item ms-3 border-start ps-3">
                     <a class="nav-link text-danger fw-bold" href="{{ url_for('logout') }}">
                         <i class="bi bi-box-arrow-right"></i> Çıkış
