@@ -7,8 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6288774380103286"
-     crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6288774380103286" crossorigin="anonymous"></script>
 </head>
 <body class="bg-light">
 
@@ -167,6 +166,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // 1. Standart Flash Mesajları (Hata/Başarı uyarıları)
         document.querySelectorAll('.flash-mesaj-kutu').forEach(function(kutu) {
             let kategori = kutu.getAttribute('data-kategori');
             let mesajIcerik = kutu.innerHTML;
@@ -181,6 +181,64 @@
         });
     });
 </script>
+
+{% if session.pop('yeni_giris', None) and session.get('paket_tipi') == 'Ücretsiz' %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: '<h2 class="fw-bold">Chef\'s Panel\'e Hoş Geldiniz! 👨‍🍳</h2>',
+            html: `
+                <p class="text-muted mb-4">İşletmenizi bir üst seviyeye taşımak için size en uygun planı seçin:</p>
+                <div class="row g-2 text-start">
+                    <div class="col-4">
+                        <div class="p-2 border rounded bg-light h-100">
+                            <small class="fw-bold d-block">Temel</small>
+                            <span class="text-primary fw-bold small">0 ₺</span>
+                            <hr class="my-1">
+                            <ul class="list-unstyled mb-0" style="font-size: 0.65rem;">
+                                <li><i class="bi bi-check text-success"></i> Kurulum Rehberi</li>
+                                <li><i class="bi bi-check text-success"></i> Z Raporu</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 border border-primary rounded bg-white h-100 shadow-sm">
+                            <small class="fw-bold d-block">Aylık</small>
+                            <span class="text-primary fw-bold small">500 ₺</span>
+                            <hr class="my-1">
+                            <ul class="list-unstyled mb-0" style="font-size: 0.65rem;">
+                                <li><i class="bi bi-star-fill text-warning"></i> Fiş Okuyucu</li>
+                                <li><i class="bi bi-check text-success"></i> Canlı Destek</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 border rounded bg-light h-100">
+                            <small class="fw-bold d-block">Yıllık</small>
+                            <span class="text-primary fw-bold small">3600 ₺</span>
+                            <hr class="my-1">
+                            <ul class="list-unstyled mb-0" style="font-size: 0.65rem;">
+                                <li><i class="bi bi-check text-success"></i> Her Şey Dahil</li>
+                                <li><i class="bi bi-check text-success"></i> 7/24 VIP</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonColor: '#212529',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Tüm Paketleri İncele',
+            cancelButtonText: 'Daha Sonra',
+            width: '600px'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "{{ url_for('paketler') }}";
+            }
+        });
+    });
+</script>
+{% endif %}
 
 </body>
 </html>
