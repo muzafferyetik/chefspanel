@@ -47,7 +47,6 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'isletme_id' not in session:
-            flash('Bu sayfayı görüntülemek için lütfen giriş yapın.', 'warning')
             return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated_function
