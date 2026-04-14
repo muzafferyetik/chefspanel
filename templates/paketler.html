@@ -86,7 +86,7 @@
 </div>
 
 <div class="container pb-5">
-    <div class="row g-4 justify-content-center align-items-center">
+    <div class="row g-4 justify-content-center align-items-stretch">
         
         <div class="col-lg-4 col-md-6">
             <div class="card pricing-card h-100 p-4 border-0 shadow-sm bg-white">
@@ -94,7 +94,8 @@
                     <h3 class="fw-bold">Temel</h3>
                     <p class="text-muted mb-4">Reklamlı Paket / Kurulum Rehberi </p>
                     <div class="mb-4">
-                        <span class="display-4 fw-bold">₺0(Ücretsiz)</span><span class="text-muted">/ay</span>
+                        <span class="display-5 fw-bold">₺0</span><br>
+                        <span class="text-muted fw-semibold">(Ücretsiz)</span>
                     </div>
                     {% if session.get('isletme_id') %}
                         {% if session.get('paket_tipi') == 'Ücretsiz' %}
@@ -127,7 +128,7 @@
                     <h3 class="fw-bold">Aylık</h3>
                     <p class="text-muted mb-4">Reklamsız / Kurulum Rehberi / Online Kurulum </p>
                     <div class="mb-4">
-                        <span class="display-4 fw-bold">₺500</span><span class="text-muted">/ay</span>
+                        <span class="display-5 fw-bold">₺500</span><span class="text-muted">/ay</span>
                     </div>
                     {% if session.get('isletme_id') %}
                         {% if session.get('paket_tipi') == 'Aylık' %}
@@ -161,7 +162,7 @@
                     <h3 class="fw-bold">Yıllık</h3>
                     <p class="text-muted mb-4">Reklamsız / Kurulum Rehberi / Online Kurulum / Canlı Destek </p>
                     <div class="mb-4">
-                        <span class="display-4 fw-bold">₺3600</span><span class="text-muted">/yıl</span>
+                        <span class="display-5 fw-bold">₺3.600</span><span class="text-muted">/yıl</span>
                     </div>
                     {% if session.get('isletme_id') %}
                         {% if session.get('paket_tipi') == 'Yıllık' %}
