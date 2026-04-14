@@ -36,6 +36,7 @@
             transform: scale(1.05) translateY(-10px);
         }
     </style>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body class="bg-light">
 
@@ -44,7 +45,10 @@
         <a class="navbar-brand" href="{{ url_for('anasayfa') }}">
             <i class="bi bi-shop me-1"></i> {{ session['isletme_adi'] if session.get('isletme_adi') else 'Chef\'s Panel' }}
         </a>
-        <div class="collapse navbar-collapse">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center">
                 {% if session.get('isletme_id') %}
                     {% if session.get('rol') == 'admin' %}
@@ -97,6 +101,7 @@
                             <button class="btn btn-success w-100 py-2 mb-4 fw-bold" disabled><i class="bi bi-check-circle"></i> Mevcut Planınız</button>
                         {% else %}
                             <form action="{{ url_for('paket_sec') }}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="paket_tipi" value="Ücretsiz">
                                 <button type="submit" class="btn btn-outline-dark w-100 py-2 mb-4 fw-bold">Bu Plana Düşür</button>
                             </form>
@@ -129,6 +134,7 @@
                             <button class="btn btn-success w-100 py-2 mb-4 fw-bold" disabled><i class="bi bi-check-circle"></i> Mevcut Planınız</button>
                         {% else %}
                             <form action="{{ url_for('paket_sec') }}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="paket_tipi" value="Aylık">
                                 <button type="submit" class="btn btn-outline-dark w-100 py-2 mb-4 fw-bold">Hemen Yükselt</button>
                             </form>
@@ -162,6 +168,7 @@
                             <button class="btn btn-success w-100 py-2 mb-4 fw-bold" disabled><i class="bi bi-check-circle"></i> Mevcut Planınız</button>
                         {% else %}
                             <form action="{{ url_for('paket_sec') }}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="paket_tipi" value="Yıllık">
                                 <button type="submit" class="btn btn-outline-dark w-100 py-2 mb-4 fw-bold">Hemen Yükselt</button>
                             </form>

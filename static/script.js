@@ -1,5 +1,27 @@
+// --- CSRF TOKEN YÖNETİMİ ---
+function getCSRFToken() {
+    var meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute('content') : '';
+}
+
+// Sayfa yüklendiğinde tüm formlara otomatik CSRF token ekle
 document.addEventListener('DOMContentLoaded', function() {
-    if ($.fn.DataTable) {
+    var token = getCSRFToken();
+    if (token) {
+        document.querySelectorAll('form').forEach(function(form) {
+            if (!form.querySelector('input[name="csrf_token"]')) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'csrf_token';
+                input.value = token;
+                form.appendChild(input);
+            }
+        });
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof $ !== 'undefined' && $.fn.DataTable) {
         $('.data-table').DataTable({
             language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json' },
             pageLength: 10,
@@ -68,7 +90,7 @@ function fisTaraBtn() {
         didOpen: () => { Swal.showLoading() }
     });
 
-    fetch('/fis_tara', { method: 'POST', body: formData })
+    fetch('/fis_tara', { method: 'POST', body: formData, headers: { 'X-CSRFToken': getCSRFToken() } })
     .then(response => response.json())
     .then(data => {
         if(data.hata) {
@@ -130,7 +152,7 @@ function fisTaraBtn() {
                 if (result.isConfirmed) {
                     fetch('/fis_kaydet', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
                         body: JSON.stringify(result.value)
                     })
                     .then(res => res.json())
@@ -148,7 +170,7 @@ function uyariKapat(tip, id) {
     let url = tip === 'tarif' ? `/uyari_kapat_tarif/${id}` : `/uyari_kapat_malzeme/${id}`;
     let elementId = `uyari-${tip}-${id}`;
     
-    fetch(url, { method: 'POST' })
+    fetch(url, { method: 'POST', headers: { 'X-CSRFToken': getCSRFToken() } })
     .then(res => res.json())
     .then(data => {
         if (data.durum === 'basarili') {
@@ -197,7 +219,7 @@ function gunSonuRaporu() {
         if (result.isConfirmed) {
             Swal.fire({title: 'Kâr ve Zarar Hesaplanıyor...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
             
-            fetch('/gun_sonu', { method: 'POST' })
+            fetch('/gun_sonu', { method: 'POST', headers: { 'X-CSRFToken': getCSRFToken() } })
             .then(res => res.json())
             .then(data => {
                 let icon = data.kar >= 0 ? 'success' : 'warning';

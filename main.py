@@ -1,18 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_wtf.csrf import CSRFProtect
 from functools import wraps
-import sqlite3
 import pytesseract
 from PIL import Image
 import re
 import os
-
-app = Flask(__name__)
-app.secret_key = 'sefin_maliyet_paneli_gizli_anahtari_123'
-
 import psycopg2
 from psycopg2.extras import DictCursor
-import os
+
+app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'sefin_maliyet_paneli_gizli_anahtari_123')
+csrf = CSRFProtect(app)
 
 class DBAdapter:
     def __init__(self, conn):
@@ -473,8 +472,8 @@ def tarifler():
 
     if request.method == 'POST':
         yemek_adi = request.form.get('yemek_adi')
-        try: satis_fiyati = float(request.form.get('satis_fiyati', 0))
-        except: satis_fiyati = 0
+        try: satis_fiyati = float(request.form.get('satis_fiyati') or 0)
+        except (ValueError, TypeError): satis_fiyati = 0
 
         if yemek_adi:
             conn.execute('INSERT INTO tarifler (isletme_id, yemek_adi, satis_fiyati) VALUES (?, ?, ?)', (isletme_id, yemek_adi, satis_fiyati))
@@ -498,8 +497,8 @@ def tarifler():
 @app.route('/tarif_satis_guncelle/<int:id>', methods=['POST'])
 @login_required
 def tarif_satis_guncelle(id):
-    try: yeni_satis = float(request.form.get('satis_fiyati'))
-    except: yeni_satis = 0
+    try: yeni_satis = float(request.form.get('satis_fiyati') or 0)
+    except (ValueError, TypeError): yeni_satis = 0
     conn = get_db_connection()
     # Güvenlik: Kendi tarifini güncelleyebilir
     conn.execute('UPDATE tarifler SET satis_fiyati = ? WHERE id = ? AND isletme_id = ?', (yeni_satis, id, session['isletme_id']))
@@ -521,8 +520,8 @@ def tarif_detay(id):
 
     if request.method == 'POST':
         malzeme_id = request.form.get('malzeme_id')
-        try: miktar = float(request.form.get('miktar'))
-        except: miktar = 0
+        try: miktar = float(request.form.get('miktar') or 0)
+        except (ValueError, TypeError): miktar = 0
         if miktar > 0:
             conn.execute('INSERT INTO tarif_malzemeleri (tarif_id, malzeme_id, miktar) VALUES (?, ?, ?)', (id, malzeme_id, miktar))
             conn.commit()
@@ -593,8 +592,8 @@ def siparis_detay(id):
 
     if request.method == 'POST':
         tarif_id = request.form.get('tarif_id')
-        try: adet = int(request.form.get('adet', 1))
-        except: adet = 0
+        try: adet = int(request.form.get('adet') or 1)
+        except (ValueError, TypeError): adet = 0
 
         if tarif_id and adet > 0:
             malzemeler = conn.execute('SELECT m.id, m.ad, m.stok_miktari, m.birim, tm.miktar FROM tarif_malzemeleri tm JOIN malzemeler m ON tm.malzeme_id = m.id WHERE tm.tarif_id = ?', (tarif_id,)).fetchall()

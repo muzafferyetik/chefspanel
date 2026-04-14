@@ -3,9 +3,11 @@ from werkzeug.security import generate_password_hash
 import os
 
 def veritabani_kur():
-    # Buradaki link geçicidir, sadece ilk kurulumda kendi bilgisayarında çalıştırırken kullanacaksın.
-    # 'postgres://...' yazan yere 1. Adımda Neon'dan aldığın KENDİ linkini yapıştır!
-    DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://neondb_owner:npg_C5tLxmiuUgf3@ep-orange-term-amkychej.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require')
+    # DATABASE_URL ortam değişkeninden okunur (Render/Neon panelinden ayarlanmalıdır)
+    DATABASE_URL = os.environ.get('DATABASE_URL')
+    if not DATABASE_URL:
+        print("HATA: DATABASE_URL ortam değişkeni tanımlanmamış! Lütfen ortam değişkenini ayarlayın.")
+        return
     
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
