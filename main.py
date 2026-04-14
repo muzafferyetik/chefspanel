@@ -518,9 +518,6 @@ def tarif_sil(id):
     conn.commit(); conn.close()
     return redirect(url_for('tarifler'))
 
-# ==========================================
-# 5. SİPARİŞ, STOK KONTROLÜ VE Z RAPORU
-# ==========================================
 @app.route('/siparisler', methods=['GET', 'POST'])
 @login_required
 def siparisler():
@@ -537,8 +534,9 @@ def siparisler():
             conn.commit()
             return redirect(url_for('siparisler'))
 
-    aktif_siparisler = conn.execute("SELECT id, siparis_adi, durum, gun_kapandi, datetime(tarih, 'localtime') as tarih FROM siparisler WHERE isletme_id = ? AND durum IN ('Hazırlanıyor', 'Teslim Edildi') ORDER BY id DESC", (isletme_id,)).fetchall()
-    gecmis_siparisler = conn.execute("SELECT id, siparis_adi, durum, gun_kapandi, datetime(tarih, 'localtime') as tarih FROM siparisler WHERE isletme_id = ? AND durum NOT IN ('Hazırlanıyor', 'Teslim Edildi') ORDER BY id DESC LIMIT 20", (isletme_id,)).fetchall()
+    # DÜZELTİLEN KISIM: datetime(tarih, 'localtime') yerine TO_CHAR kullanıldı (PostgreSQL)
+    aktif_siparisler = conn.execute("SELECT id, siparis_adi, durum, gun_kapandi, TO_CHAR(tarih, 'YYYY-MM-DD HH24:MI:SS') as tarih FROM siparisler WHERE isletme_id = ? AND durum IN ('Hazırlanıyor', 'Teslim Edildi') ORDER BY id DESC", (isletme_id,)).fetchall()
+    gecmis_siparisler = conn.execute("SELECT id, siparis_adi, durum, gun_kapandi, TO_CHAR(tarih, 'YYYY-MM-DD HH24:MI:SS') as tarih FROM siparisler WHERE isletme_id = ? AND durum NOT IN ('Hazırlanıyor', 'Teslim Edildi') ORDER BY id DESC LIMIT 20", (isletme_id,)).fetchall()
 
     masalar = conn.execute('SELECT * FROM masalar WHERE isletme_id = ? ORDER BY id', (isletme_id,)).fetchall()
     dolu_masalar_listesi = [s['siparis_adi'] for s in aktif_siparisler]
