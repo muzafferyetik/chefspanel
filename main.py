@@ -181,8 +181,8 @@ def logout():
     return redirect(url_for('login'))
 
 @app.route('/paketler')
-@login_required
 def paketler():
+    # Bu sayfayı herkes görebilsin (login zorunluluğu yok)
     return render_template('paketler.html')
 
 # ==========================================

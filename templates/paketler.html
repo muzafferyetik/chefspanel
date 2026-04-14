@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paketler - Chef's Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .pricing-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 15px;
+        }
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        .popular-badge {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background-color: #0d6efd;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .popular-card {
+            border: 2px solid #0d6efd;
+            transform: scale(1.05);
+            z-index: 1;
+        }
+        .popular-card:hover {
+            transform: scale(1.05) translateY(-10px);
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark mb-5 shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('anasayfa') }}">
+            <i class="bi bi-shop me-1"></i> Chef's Panel
+        </a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('anasayfa') }}">Ana Sayfa</a></li>
+                <li class="nav-item"><a class="nav-link active fw-bold" href="{{ url_for('paketler') }}">Paketler</a></li>
+                </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container text-center mb-5">
+    <h1 class="display-5 fw-bold text-dark">Basit, Şeffaf Fiyatlandırma</h1>
+    <p class="lead text-muted">İhtiyaçlarınıza en uygun planı seçin. Tüm planlar 14 gün ücretsiz deneme ile birlikte gelir.</p>
+</div>
+
+<div class="container pb-5">
+    <div class="row g-4 justify-content-center align-items-center">
+        
+        <div class="col-lg-4 col-md-6">
+            <div class="card pricing-card h-100 p-4 border-0 shadow-sm bg-white">
+                <div class="card-body">
+                    <h3 class="fw-bold">Temel</h3>
+                    <p class="text-muted mb-4">Küçük işletmeler için ideal</p>
+                    <div class="mb-4">
+                        <span class="display-4 fw-bold">₺99</span><span class="text-muted">/ay</span>
+                    </div>
+                    <a href="#" class="btn btn-outline-dark w-100 py-2 mb-4 fw-bold">Planı Seç</a>
+                    
+                    <p class="fw-bold fs-6">Bu plana dahil:</p>
+                    <ul class="list-unstyled">
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> 5 Kullanıcı</li>
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> 10 GB Depolama</li>
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> Temel Özellikler</li>
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> E-posta Desteği</li>
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> Mobil Uygulama</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+            <div class="card pricing-card popular-card h-100 p-4 shadow bg-white position-relative">
+                <span class="popular-badge">Popüler</span>
+                <div class="card-body">
+                    <h3 class="fw-bold">Profesyonel</h3>
+                    <p class="text-muted mb-4">Büyüyen ekipler için mükemmel</p>
+                    <div class="mb-4">
+                        <span class="display-4 fw-bold">₺299</span><span class="text-muted">/ay</span>
+                    </div>
+                    <a href="#" class="btn btn-dark w-100 py-2 mb-4 fw-bold">Şimdi Başla</a>
+                    
+                    <p class="fw-bold fs-6">Bu plana dahil:</p>
+                    <ul class="list-unstyled">
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> 20 Kullanıcı</li>
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> 100 GB Depolama</li>
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> Tüm Temel Özellikler</li>
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> Öncelikli Destek</li>
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> Gelişmiş Analitik</li>
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> API Erişimi</li>
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> Özel Entegrasyonlar</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+            <div class="card pricing-card h-100 p-4 border-0 shadow-sm bg-white">
+                <div class="card-body">
+                    <h3 class="fw-bold">İşletme</h3>
+                    <p class="text-muted mb-4">Büyük organizasyonlar için</p>
+                    <div class="mb-4">
+                        <span class="display-4 fw-bold">₺799</span><span class="text-muted">/ay</span>
+                    </div>
+                    <a href="#" class="btn btn-outline-dark w-100 py-2 mb-4 fw-bold">Planı Seç</a>
+                    
+                    <p class="fw-bold fs-6">Bu plana dahil:</p>
+                    <ul class="list-unstyled">
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> Sınırsız Kullanıcı</li>
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> 1 TB Depolama</li>
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> Tüm Profesyonel Özellikler</li>
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> 7/24 Telefon Desteği</li>
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> Özel Hesap Yöneticisi</li>
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> SSO & Gelişmiş Güvenlik</li>
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> Özel SLA</li>
+                        <li class="mb-3"><i class="bi bi-check2 text-primary me-2 fs-5"></i> Eğitim & Danışmanlık</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<footer class="bg-dark text-white text-center py-5 mt-5">
+    <div class="container">
+        <h4 class="mb-3 fw-bold">Bize Ulaşın</h4>
+        <p class="text-muted mb-4">Özel ihtiyaçlarınız veya işletme planı detayları için satış ekibimizle görüşün.</p>
+        <div class="d-flex justify-content-center gap-4 mb-4">
+            <a href="mailto:info@chefspanel.com.tr" class="text-white text-decoration-none hover-opacity-75">
+                <i class="bi bi-envelope-fill me-2"></i>info@chefspanel.com.tr
+            </a>
+            <a href="tel:+905551234567" class="text-white text-decoration-none hover-opacity-75">
+                <i class="bi bi-telephone-fill me-2"></i>+90 555 123 45 67
+            </a>
+        </div>
+        <p class="small text-muted m-0">&copy; 2026 Chef's Panel. Tüm hakları saklıdır.</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
