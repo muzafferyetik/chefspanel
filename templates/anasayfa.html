@@ -39,36 +39,6 @@
 </nav>
 
 <div class="container pb-5">
-    {% if session.get('paket_tipi') == 'Ücretsiz' and session.get('rol') != 'admin' %}
-    <div class="text-center mb-4">
-        <span class="badge bg-light text-muted border mb-1" style="font-size: 0.6rem;">REKLAM</span>
-        <div class="border rounded bg-white shadow-sm d-flex align-items-center justify-content-center" style="height: 90px; overflow: hidden;">
-            <p class="text-muted small m-0">Google AdSense Reklam Alanı</p>
-        </div>
-    </div>
-
-    {% if session.pop('yeni_giris', None) %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-                title: '<strong>Sınırları Kaldırın! 🚀</strong>',
-                html: 'Reklamları gizlemek, <b>Yapay Zeka (Fiş Okuma)</b> özelliklerini açmak ve VIP destek almak için premium paketlerimizi inceleyin.',
-                icon: 'info',
-                showCancelButton: true,
-                confirmButtonColor: '#212529',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Paketleri İncele',
-                cancelButtonText: 'Ücretsiz Kullanmaya Devam Et'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "{{ url_for('paketler') }}";
-                }
-            });
-        });
-    </script>
-    {% endif %}
-    {% endif %}
-
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold m-0 text-dark">Yönetim Paneline Hoş Geldiniz</h2>
