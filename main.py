@@ -704,7 +704,6 @@ def siparis_durum(id, durum):
         return redirect(url_for('anasayfa'))
     return redirect(url_for('siparisler'))
 
-# --- YENİ: Z RAPORU ---
 @app.route('/gun_sonu', methods=['POST'])
 @login_required
 def gun_sonu():
@@ -719,8 +718,10 @@ def gun_sonu():
         WHERE s.isletme_id = ? AND s.durum = 'Tamamlandı' AND s.gun_kapandi = 0
     '''
     ciro_res = conn.execute(ciro_query, (isletme_id,)).fetchone()
-    ciro = ciro_res['ciro'] or 0
-    sip_sayisi = ciro_res['sip_sayisi'] or 0
+    
+    # KESİN ÇÖZÜM: Sonuçları JSON'un anlayacağı float ve int formatına zorluyoruz
+    ciro = float(ciro_res['ciro'] or 0)
+    sip_sayisi = int(ciro_res['sip_sayisi'] or 0)
 
     maliyet_query = '''
         SELECT SUM(
@@ -735,9 +736,9 @@ def gun_sonu():
         WHERE s.isletme_id = ? AND s.durum = 'Tamamlandı' AND s.gun_kapandi = 0
     '''
     maliyet_res = conn.execute(maliyet_query, (isletme_id,)).fetchone()
-    maliyet = maliyet_res['maliyet'] or 0
+    maliyet = float(maliyet_res['maliyet'] or 0) # Burada da float dönüşümü yapıldı
 
-    kar = ciro - maliyet
+    kar = float(ciro - maliyet)
 
     conn.execute("UPDATE siparisler SET gun_kapandi = 1 WHERE isletme_id = ? AND durum = 'Tamamlandı' AND gun_kapandi = 0", (isletme_id,))
     conn.commit()
