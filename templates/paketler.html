@@ -42,16 +42,36 @@
 <nav class="navbar navbar-expand-lg navbar-dark mb-5 shadow-sm">
     <div class="container">
         <a class="navbar-brand" href="{{ url_for('anasayfa') }}">
-            <i class="bi bi-shop me-1"></i> Chef's Panel
+            <i class="bi bi-shop me-1"></i> {{ session['isletme_adi'] if session.get('isletme_adi') else 'Chef\'s Panel' }}
         </a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('anasayfa') }}">Ana Sayfa</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('siparisler') }}">Siparişler</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('malzemeler') }}">Depo</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('tarifler') }}">Tarifler</a></li>
-                    <li class="nav-item"><a class="nav-link fw-bold text-warning" href="{{ url_for('paketler') }}"><i class="bi bi-star-fill"></i> Paketler</a></li>
-                </ul>
+                {% if session.get('isletme_id') %}
+                    {% if session.get('rol') == 'admin' %}
+                        <li class="nav-item"><a class="nav-link text-warning fw-bold" href="{{ url_for('admin_panel') }}"><i class="bi bi-shield-lock-fill"></i> Admin Paneli</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('anasayfa') }}">Ana Sayfa</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('siparisler') }}">Siparişler</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('malzemeler') }}">Depo</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('tarifler') }}">Tarifler</a></li>
+                        <li class="nav-item"><a class="nav-link fw-bold text-warning active" href="{{ url_for('paketler') }}"><i class="bi bi-star-fill"></i> Paketler</a></li>
+                    {% endif %}
+                    
+                    <li class="nav-item ms-3 border-start ps-3">
+                        <a class="nav-link text-danger fw-bold" href="{{ url_for('logout') }}">
+                            <i class="bi bi-box-arrow-right"></i> Çıkış
+                        </a>
+                    </li>
+                
+                {% else %}
+                    <li class="nav-item"><a class="nav-link fw-bold text-warning active" href="{{ url_for('paketler') }}"><i class="bi bi-star-fill"></i> Paketler</a></li>
+                    <li class="nav-item ms-3 border-start ps-3">
+                        <a class="nav-link text-success fw-bold" href="{{ url_for('login') }}">
+                            <i class="bi bi-box-arrow-in-right"></i> Giriş Yap
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
         </div>
     </div>
 </nav>
