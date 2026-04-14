@@ -603,10 +603,15 @@ def siparis_detay(id):
             dusulecek_stoklar = []
 
             for m in malzemeler:
-                harcanan = m['miktar'] * adet
+                # KESİN ÇÖZÜM: Veritabanından gelen Decimal verileri Float'a çeviriyoruz
+                stok = float(m['stok_miktari'] or 0)
+                miktar = float(m['miktar'] or 0)
+
+                harcanan = miktar * adet
                 if m['birim'] in ['kg', 'lt']: harcanan = harcanan / 1000.0
-                if m['stok_miktari'] < harcanan:
-                    yetersiz_stok_listesi.append(f"• {m['ad']} (Eksik: <b>{(harcanan - m['stok_miktari']):.2f} {m['birim']}</b>)")
+                
+                if stok < harcanan:
+                    yetersiz_stok_listesi.append(f"• {m['ad']} (Eksik: <b>{(harcanan - stok):.2f} {m['birim']}</b>)")
                 else:
                     dusulecek_stoklar.append((harcanan, m['id']))
 
@@ -630,8 +635,9 @@ def siparis_detay(id):
 
     islenmis_kalemler, toplam_siparis_maliyeti, toplam_siparis_satis = [], 0, 0
     for k in kalemler:
-        birim = k['birim_maliyet'] or 0
-        satis = k['satis_fiyati'] or 0
+        # KESİN ÇÖZÜM: Fiyat hesaplamalarını da Float yapıyoruz
+        birim = float(k['birim_maliyet'] or 0)
+        satis = float(k['satis_fiyati'] or 0)
         satir_toplam_maliyet = birim * k['adet']
         satir_toplam_satis = satis * k['adet']
 
@@ -656,7 +662,12 @@ def siparis_kalem_sil(siparis_id, detay_id):
         malzemeler = conn.execute('SELECT malzeme_id, miktar FROM tarif_malzemeleri WHERE tarif_id = ?', (kalem['tarif_id'],)).fetchall()
         for m in malzemeler:
             mat = conn.execute('SELECT birim FROM malzemeler WHERE id = ?', (m['malzeme_id'],)).fetchone()
-            iade = m['miktar'] * kalem['adet']
+            
+            # KESİN ÇÖZÜM: İade hesaplamasında Float
+            miktar = float(m['miktar'] or 0)
+            adet = int(kalem['adet'] or 0)
+            iade = miktar * adet
+            
             if mat['birim'] in ['kg', 'lt']: iade = iade / 1000.0
             conn.execute('UPDATE malzemeler SET stok_miktari = stok_miktari + ? WHERE id = ?', (iade, m['malzeme_id']))
     conn.execute('DELETE FROM siparis_detay WHERE id = ?', (detay_id,))
@@ -677,7 +688,12 @@ def siparis_durum(id, durum):
                 malzemeler = conn.execute('SELECT malzeme_id, miktar FROM tarif_malzemeleri WHERE tarif_id = ?', (k['tarif_id'],)).fetchall()
                 for m in malzemeler:
                     mat = conn.execute('SELECT birim FROM malzemeler WHERE id = ?', (m['malzeme_id'],)).fetchone()
-                    iade = m['miktar'] * k['adet']
+                    
+                    # KESİN ÇÖZÜM: Komple iptal işleminde stok iadesini Float ile yapma
+                    miktar = float(m['miktar'] or 0)
+                    adet = int(k['adet'] or 0)
+                    iade = miktar * adet
+                    
                     if mat['birim'] in ['kg', 'lt']: iade = iade / 1000.0
                     conn.execute('UPDATE malzemeler SET stok_miktari = stok_miktari + ? WHERE id = ?', (iade, m['malzeme_id']))
 
