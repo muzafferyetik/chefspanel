@@ -185,7 +185,7 @@
     });
 </script>
 
-{% if session.pop('yeni_giris', None) and session.get('paket_tipi') == 'Ücretsiz' %}
+{% if session.pop('yeni_giris', None) and session.get('paket_tipi') == 'Ücretsiz' and session.get('rol') != 'admin' %}
 <style>
     /* Popup'a özel modern stiller */
     .modern-popup {
