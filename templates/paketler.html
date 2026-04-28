@@ -135,6 +135,12 @@
                     {% if session.get('isletme_id') %}
                         {% if session.get('paket_tipi') == 'Aylık' %}
                             <button class="btn btn-success w-100 py-2 mb-4 fw-bold" disabled><i class="bi bi-check-circle"></i> Mevcut Planınız</button>
+                        {% elif session.get('paket_tipi') == 'Yıllık' %}
+                            <form action="{{ url_for('paket_sec') }}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="paket_tipi" value="Aylık">
+                                <button type="submit" class="btn btn-outline-dark w-100 py-2 mb-4 fw-bold">Bu Plana Düşür</button>
+                            </form>
                         {% else %}
                             <form action="{{ url_for('paket_sec') }}" method="POST">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
