@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf.csrf import CSRFProtect
 from functools import wraps
@@ -12,6 +12,11 @@ from psycopg2.extras import DictCursor
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'sefin_maliyet_paneli_gizli_anahtari_123')
 csrf = CSRFProtect(app)
+
+# ads.txt dosyasını kök dizinden sun (Google AdSense doğrulaması için)
+@app.route('/ads.txt')
+def ads_txt():
+    return send_from_directory(app.static_folder, 'ads.txt', mimetype='text/plain')
 
 class DBAdapter:
     def __init__(self, conn):
