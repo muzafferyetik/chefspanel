@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chef's Panel - Restoran Maliyet ve Sipariş Yönetim Sistemi</title>
+    <meta name="description" content="Chef's Panel ile restoranınızın malzeme maliyetlerini, tariflerinizi ve siparişlerinizi profesyonelce yönetin. Akıllı fiş okuyucu, anlık maliyet analizi ve Z raporu özellikleri.">
+    <meta name="keywords" content="restoran yönetim sistemi, maliyet analizi, sipariş takibi, restoran ERP, chef panel, mutfak yönetimi">
+    <meta name="google-adsense-account" content="ca-pub-6288774380103286">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 92vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255,165,0,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .hero-badge {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-size: 0.85rem;
+            color: #ffc107;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+        .hero-title {
+            font-size: 3.2rem;
+            font-weight: 800;
+            line-height: 1.15;
+            color: #fff;
+        }
+        .hero-title span { color: #ffc107; }
+        .hero-desc {
+            font-size: 1.15rem;
+            color: rgba(255,255,255,0.7);
+            max-width: 520px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-card h3 { color: #ffc107; font-weight: 800; font-size: 2rem; }
+        .stat-card p { color: rgba(255,255,255,0.6); margin: 0; font-size: 0.9rem; }
+        .feature-section { padding: 100px 0; }
+        .feature-card {
+            border: none;
+            border-radius: 16px;
+            padding: 2rem;
+            height: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+        }
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin-bottom: 1.2rem;
+        }
+        .how-section { background: #f8f9fa; padding: 100px 0; }
+        .step-number {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0f3460, #1a1a2e);
+            color: #ffc107;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .faq-section { padding: 100px 0; }
+        .faq-section .accordion-button:not(.collapsed) {
+            background-color: #f0f4ff;
+            color: #0f3460;
+        }
+        .cta-section {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+            padding: 80px 0;
+        }
+        .landing-nav {
+            background: transparent !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark landing-nav py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="/">
+            <i class="bi bi-shop me-2"></i>Chef's Panel
+        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('paketler') }}" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold">
+                <i class="bi bi-star-fill me-1"></i> Paketler
+            </a>
+            <a href="{{ url_for('login') }}" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold text-dark">
+                Giriş Yap <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <div class="hero-badge"><i class="bi bi-lightning-fill me-1"></i> Restoran Yönetiminde Yeni Nesil</div>
+                <h1 class="hero-title mb-4">Mutfağınızın<br><span>Maliyet Kontrol</span><br>Merkezi</h1>
+                <p class="hero-desc mb-4">
+                    Chef's Panel ile restoranınızın tüm malzeme maliyetlerini anlık takip edin,
+                    tariflerinizin kâr marjını hesaplayın ve siparişlerinizi profesyonelce yönetin.
+                    Akıllı fiş okuyucu ile fiyat değişimlerini otomatik algılayın.
+                </p>
+                <div class="d-flex gap-3 mb-5">
+                    <a href="{{ url_for('register') }}" class="btn btn-warning btn-lg rounded-pill px-4 fw-bold text-dark shadow">
+                        <i class="bi bi-rocket-takeoff me-2"></i>Ücretsiz Başla
+                    </a>
+                    <a href="{{ url_for('paketler') }}" class="btn btn-outline-light btn-lg rounded-pill px-4 fw-bold">
+                        Paketleri İncele
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <h3><i class="bi bi-speedometer2"></i></h3>
+                            <p>Anlık Maliyet Analizi</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <h3><i class="bi bi-receipt"></i></h3>
+                            <p>Akıllı Fiş Okuyucu</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <h3><i class="bi bi-graph-up-arrow"></i></h3>
+                            <p>Kâr Marjı Takibi</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <h3><i class="bi bi-calculator"></i></h3>
+                            <p>Z Raporu</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="feature-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 mb-3 fs-6">Özellikler</span>
+            <h2 class="display-6 fw-bold text-dark">Restoranınız İçin Her Şey Tek Panelde</h2>
+            <p class="text-muted mx-auto" style="max-width:600px">Malzeme deposundan sipariş yönetimine, fiş taramadan gün sonu raporuna kadar tüm ihtiyaçlarınız.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card">
+                    <div class="feature-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-box2-heart"></i></div>
+                    <h5 class="fw-bold">Malzeme Deposu</h5>
+                    <p class="text-muted mb-0">Tüm malzemelerinizi kaydedin, stok takibi yapın ve fiyat değişimlerini geçmişiyle birlikte anlık izleyin. Stok azaldığında otomatik uyarı alın.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card">
+                    <div class="feature-icon bg-danger bg-opacity-10 text-danger"><i class="bi bi-journal-richtext"></i></div>
+                    <h5 class="fw-bold">Tarif ve Menü Yönetimi</h5>
+                    <p class="text-muted mb-0">Yemeklerinizin tariflerini oluşturun, porsiyon maliyetini otomatik hesaplayın ve satış fiyatınıza göre kâr marjınızı görün.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card">
+                    <div class="feature-icon bg-success bg-opacity-10 text-success"><i class="bi bi-bell"></i></div>
+                    <h5 class="fw-bold">Sipariş ve Masa Yönetimi</h5>
+                    <p class="text-muted mb-0">Oturma planınızı oluşturun, masalardan hızlı sipariş açın ve adisyon detaylarını anlık takip edin. Stoklar otomatik düşer.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card">
+                    <div class="feature-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-receipt"></i></div>
+                    <h5 class="fw-bold">Akıllı Fiş Okuyucu (AI)</h5>
+                    <p class="text-muted mb-0">Market fişinizin fotoğrafını çekin, yapay zeka fiyatları otomatik algılasın. Mevcut malzemelerin fiyatı değiştiyse anında güncellenir.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card">
+                    <div class="feature-icon bg-info bg-opacity-10 text-info"><i class="bi bi-calculator"></i></div>
+                    <h5 class="fw-bold">Gün Sonu Z Raporu</h5>
+                    <p class="text-muted mb-0">Günün sonunda tek tuşla toplam ciro, maliyet ve net kâr raporunuzu alın. Hangi siparişlerin kapanmadığını görün.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card">
+                    <div class="feature-icon bg-secondary bg-opacity-10 text-secondary"><i class="bi bi-graph-up-arrow"></i></div>
+                    <h5 class="fw-bold">Fiyat Değişim Uyarıları</h5>
+                    <p class="text-muted mb-0">Malzeme fiyatları değiştiğinde tariflerinizde ve deponuzda anlık uyarı alın. Hangi yemeğin maliyetinin arttığını anında görün.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="how-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge bg-dark rounded-pill px-3 py-2 mb-3 fs-6">Nasıl Çalışır?</span>
+            <h2 class="display-6 fw-bold text-dark">3 Adımda Restoranınızı Dijitalleştirin</h2>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="d-flex gap-4 mb-4 align-items-start">
+                    <div class="step-number">1</div>
+                    <div>
+                        <h5 class="fw-bold mb-1">Hesap Oluşturun</h5>
+                        <p class="text-muted mb-0">İşletme adınızla ücretsiz kayıt olun. 30 saniyede sisteme girin ve paneli keşfetmeye başlayın.</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-4 mb-4 align-items-start">
+                    <div class="step-number">2</div>
+                    <div>
+                        <h5 class="fw-bold mb-1">Malzeme ve Tarifleri Girin</h5>
+                        <p class="text-muted mb-0">Depodaki malzemelerinizi ve birim fiyatlarını ekleyin, ardından yemek tariflerinizi oluşturup maliyetleri otomatik hesaplatın.</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-4 mb-4 align-items-start">
+                    <div class="step-number">3</div>
+                    <div>
+                        <h5 class="fw-bold mb-1">Sipariş Alın, Kâr Edin</h5>
+                        <p class="text-muted mb-0">Masalarınızı tanımlayın, sipariş alın. Stoklar otomatik düşsün, gün sonunda Z raporuyla ne kadar kazandığınızı görün.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="faq-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 mb-3 fs-6">SSS</span>
+            <h2 class="display-6 fw-bold text-dark">Sıkça Sorulan Sorular</h2>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item border-0 mb-3 shadow-sm rounded-3">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button fw-bold rounded-3" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                Chef's Panel nedir ve kimler kullanabilir?
+                            </button>
+                        </h3>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                Chef's Panel, restoran, kafe ve yemek işletmeleri için geliştirilmiş bir maliyet ve sipariş yönetim sistemidir. İşletme sahipleri, şefler ve mutfak yöneticileri tarafından kullanılabilir. Malzeme maliyetlerini takip etmek, tarif maliyeti hesaplamak ve sipariş yönetimi yapmak isteyen her işletme faydalanabilir.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-0 mb-3 shadow-sm rounded-3">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button fw-bold rounded-3 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                Ücretsiz plan ile neler yapabilirim?
+                            </button>
+                        </h3>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                Ücretsiz planla malzeme deposu, tarif oluşturma, sipariş yönetimi ve gün sonu Z raporu özelliklerini kullanabilirsiniz. Akıllı fiş okuyucu ve canlı destek gibi gelişmiş özellikler için premium planlara geçebilirsiniz.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-0 mb-3 shadow-sm rounded-3">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button fw-bold rounded-3 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                Akıllı fiş okuyucu nasıl çalışır?
+                            </button>
+                        </h3>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                Market veya tedarikçi fişinizin fotoğrafını sisteme yükleyin. Yapay zeka destekli OCR teknolojimiz fişi okur, ürün adlarını ve fiyatları otomatik algılar. Deponuzda zaten kayıtlı olan malzemelerin fiyatı değiştiyse size bildirir ve güncellemenize olanak tanır.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-0 mb-3 shadow-sm rounded-3">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button fw-bold rounded-3 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                Verilerim güvende mi?
+                            </button>
+                        </h3>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                Evet. Tüm veriler şifreli bağlantılar üzerinden iletilir ve güvenli bulut sunucularda saklanır. Her işletme yalnızca kendi verilerini görebilir, başka işletmelerin bilgilerine erişim mümkün değildir. Parolalar endüstri standardı hash algoritmaları ile korunur.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-0 mb-3 shadow-sm rounded-3">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button fw-bold rounded-3 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                Aboneliğimi istediğim zaman değiştirebilir miyim?
+                            </button>
+                        </h3>
+                        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                Evet, dilediğiniz zaman planlar arasında geçiş yapabilirsiniz. Yükseltme anında aktif olur, düşürme ise mevcut dönem sonunda geçerli olur. Taahhüt yoktur, istediğiniz zaman iptal edebilirsiniz.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section text-center">
+    <div class="container">
+        <h2 class="display-6 fw-bold text-white mb-3">Restoranınızı Bugün Dijitalleştirin</h2>
+        <p class="text-white-50 mb-4 fs-5">Ücretsiz başlayın, premium özellikleri keşfedin.</p>
+        <a href="{{ url_for('register') }}" class="btn btn-warning btn-lg rounded-pill px-5 py-3 fw-bold text-dark shadow">
+            <i class="bi bi-rocket-takeoff me-2"></i>Hemen Ücretsiz Başla
+        </a>
+    </div>
+</section>
+
+<footer class="bg-dark text-white text-center py-5">
+    <div class="container">
+        <h4 class="mb-3 fw-bold">Bize Ulaşın</h4>
+        <p class="text-muted mb-4">Özel ihtiyaçlarınız veya işletme planı detayları için satış ekibimizle görüşün.</p>
+        <div class="d-flex justify-content-center flex-wrap gap-4 mb-4">
+            <a href="mailto:info@chefspanel.com.tr" class="text-white text-decoration-none">
+                <i class="bi bi-envelope-fill me-2"></i>info@chefspanel.com.tr
+            </a>
+            <a href="tel:+905551234567" class="text-white text-decoration-none">
+                <i class="bi bi-telephone-fill me-2"></i>+90 555 123 45 67
+            </a>
+            <a href="https://instagram.com/chefspanel" target="_blank" class="text-white text-decoration-none">
+                <i class="bi bi-instagram me-2"></i>@chefspanel
+            </a>
+        </div>
+        <p class="small text-muted m-0">&copy; 2026 Chef's Panel. Tüm hakları saklıdır.</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

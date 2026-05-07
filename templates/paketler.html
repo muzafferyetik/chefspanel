@@ -43,7 +43,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark mb-5 shadow-sm">
     <div class="container">
-        <a class="navbar-brand" href="{{ url_for('anasayfa') }}">
+        <a class="navbar-brand" href="{{ url_for('dashboard') }}">
             <i class="bi bi-shop me-1"></i> {{ session['isletme_adi'] if session.get('isletme_adi') else 'Chef\'s Panel' }}
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -55,7 +55,7 @@
                     {% if session.get('rol') == 'admin' %}
                         <li class="nav-item"><a class="nav-link text-warning fw-bold {% if request.endpoint == 'admin_panel' %}active{% endif %}" href="{{ url_for('admin_panel') }}"><i class="bi bi-shield-lock-fill"></i> Admin Paneli</a></li>
                     {% else %}
-                        <li class="nav-item"><a class="nav-link {% if request.endpoint == 'anasayfa' %}text-warning fw-bold{% endif %}" href="{{ url_for('anasayfa') }}">Ana Sayfa</a></li>
+                        <li class="nav-item"><a class="nav-link {% if request.endpoint == 'dashboard' %}text-warning fw-bold{% endif %}" href="{{ url_for('dashboard') }}">Ana Sayfa</a></li>
                         <li class="nav-item"><a class="nav-link {% if request.endpoint == 'siparisler' %}text-warning fw-bold{% endif %}" href="{{ url_for('siparisler') }}">Siparişler</a></li>
                         <li class="nav-item"><a class="nav-link {% if request.endpoint == 'malzemeler' %}text-warning fw-bold{% endif %}" href="{{ url_for('malzemeler') }}">Depo</a></li>
                         <li class="nav-item"><a class="nav-link {% if request.endpoint == 'tarifler' %}text-warning fw-bold{% endif %}" href="{{ url_for('tarifler') }}">Tarifler</a></li>

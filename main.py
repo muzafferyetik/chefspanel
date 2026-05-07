@@ -55,12 +55,20 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# --- HERKESE AÇIK LANDING PAGE ---
+@app.route('/')
+def landing():
+    # Giriş yapmış kullanıcıyı panele yönlendir
+    if 'isletme_id' in session:
+        return redirect(url_for('dashboard'))
+    return render_template('landing.html')
+
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'rol' not in session or session['rol'] != 'admin':
             flash('Bu alana sadece Sistem Yöneticisi girebilir!', 'error')
-            return redirect(url_for('anasayfa'))
+            return redirect(url_for('dashboard'))
         return f(*args, **kwargs)
     return decorated_function
 def premium_required(f):
@@ -120,7 +128,7 @@ def login():
             # Eğer giren admın ise onu anasayfaya değil direkt patron paneline at!
             if session['rol'] == 'admin':
                 return redirect(url_for('admin_panel'))
-            return redirect(url_for('anasayfa'))
+            return redirect(url_for('dashboard'))
         else:
             flash('Hatalı İşletme Adı veya Parola!', 'error')
 
@@ -223,14 +231,14 @@ def paket_sec():
         flash(f'Tebrikler! Başarıyla <b>{yeni_paket}</b> planına geçtiniz. Tüm premium özellikler açıldı! 🚀', 'success')
         
     # İşlem bitince anasayfaya fırlat
-    return redirect(url_for('anasayfa'))
+    return redirect(url_for('dashboard'))
 
 # ==========================================
 # 1. ANA SAYFA VE MASA YÖNETİMİ
 # ==========================================
-@app.route('/')
+@app.route('/dashboard')
 @login_required
-def anasayfa():
+def dashboard():
     isletme_id = session['isletme_id']
     conn = get_db_connection()
 
@@ -248,6 +256,12 @@ def anasayfa():
     conn.close()
     return render_template('anasayfa.html', tarif_sayisi=tarif_sayisi, malzeme_sayisi=malzeme_sayisi,
                            siparis_sayisi=siparis_sayisi, masalar=masalar, dolu_masalar=dolu_masalar, kapanacak_siparis_sayisi=kapanacak_siparis_sayisi)
+
+# Eski '/' URL'sine gelen linkleri yönlendir
+@app.route('/anasayfa')
+@login_required
+def anasayfa_redirect():
+    return redirect(url_for('dashboard'))
 
 @app.route('/masa_ekle', methods=['POST'])
 @login_required
@@ -705,7 +719,7 @@ def siparis_durum(id, durum):
         conn.commit()
     conn.close()
     if request.args.get('next') == 'anasayfa':
-        return redirect(url_for('anasayfa'))
+        return redirect(url_for('dashboard'))
     return redirect(url_for('siparisler'))
 
 @app.route('/gun_sonu', methods=['POST'])
